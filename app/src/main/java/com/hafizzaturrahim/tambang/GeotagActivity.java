@@ -152,6 +152,7 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
                 // successfully captured the image
                 // display it in image view
                 previewImage();
+                Log.v("path uri take camera", fileUri.getPath());
             } else if (resultCode == RESULT_CANCELED) {
                 // user cancelled Image capture
                 Toast.makeText(getApplicationContext(),
@@ -163,24 +164,24 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
                         "Sorry! Failed to capture image", Toast.LENGTH_SHORT)
                         .show();
             }
-        }else{
-            if(resultCode == RESULT_OK){
+        } else {
+            if (resultCode == RESULT_OK) {
                 if (data == null) {
                     //Display an error
+                    Toast.makeText(this, "can't show image", Toast.LENGTH_SHORT).show();
                     return;
-                }else{
-                    try {
-                        InputStream inputStream = this.getContentResolver().openInputStream(data.getData());
-                        bitmap = BitmapFactory.decodeStream(inputStream);
-                        //scale bitmap to prevent too large resolution that cant rendered by OpenGL
-                        int nh = (int) ( bitmap.getHeight() * (512.0 / bitmap.getWidth()) );
-                        bitmap = Bitmap.createScaledBitmap(bitmap, 512, nh, true);
+                } else {
+                    fileUri = data.getData();
+                    Log.v("path uri browse galery", fileUri.getPath());
+                    previewImage();
+//                        InputStream inputStream = this.getContentResolver().openInputStream(data.getData());
+//                        bitmap = BitmapFactory.decodeStream(inputStream);
+//                        //scale bitmap to prevent too large resolution that cant rendered by OpenGL
+//                        int nh = (int) (bitmap.getHeight() * (512.0 / bitmap.getWidth()));
+//                        bitmap = Bitmap.createScaledBitmap(bitmap, 512, nh, true);
 
 //                        Picasso.with(GeotagActivity.this).load(String.valueOf(bitmap)).fit().centerCrop().into(imageView);
-                        imageView.setImageBitmap(bitmap);
-                    } catch (FileNotFoundException e) {
-                        e.printStackTrace();
-                    }
+//                        imageView.setImageBitmap(bitmap);
                 }
             }
         }
@@ -211,8 +212,6 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
         String encodedImage = Base64.encodeToString(imageBytes, Base64.DEFAULT);
         return encodedImage;
     }
-
-
 
     private void showFileChooser() {
         Intent intent = new Intent();
@@ -256,6 +255,7 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
      * Display image from a path to ImageView
      */
     private void previewImage() {
+
         try {
             // bimatp factory
             BitmapFactory.Options options = new BitmapFactory.Options();
@@ -269,74 +269,78 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
             imageView.setImageBitmap(bitmap);
 
 //            Log.v("real path uri",fileUri.getPath());
+            getExifData();
 
-            ExifInterface exif = new ExifInterface(fileUri.getPath());
-            String LATITUDE = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
-            String LATITUDE_REF = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF);
-            String LONGITUDE = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
-            String LONGITUDE_REF = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF);
-
-            Float Latitude = null, Longitude = null;
-
-            if((LATITUDE !=null)
-                    && (LATITUDE_REF !=null)
-                    && (LONGITUDE != null)
-                    && (LONGITUDE_REF !=null))
-            {
-
-                if(LATITUDE_REF.equals("N")){
-                    Latitude = convertToDegree(LATITUDE);
-                }
-                else{
-                    Latitude = 0 - convertToDegree(LATITUDE);
-                }
-
-                if(LONGITUDE_REF.equals("E")){
-                    Longitude = convertToDegree(LONGITUDE);
-                }
-                else{
-                    Longitude = 0 - convertToDegree(LONGITUDE);
-                }
-
-            }
-
-            t.setText(String.valueOf(Latitude));
-//            Log.d("lat gbr",latitude);
-            Toast.makeText(this, "latitude " +String.valueOf(Latitude), Toast.LENGTH_SHORT).show();
         } catch (NullPointerException e) {
             e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-            Toast.makeText(this, "gagal exif", Toast.LENGTH_SHORT).show();
         }
     }
 
+    private void getExifData() {
+        ExifInterface exif = null;
+        try {
+            exif = new ExifInterface(fileUri.getPath());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        String LATITUDE = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE);
+        String LATITUDE_REF = exif.getAttribute(ExifInterface.TAG_GPS_LATITUDE_REF);
+        String LONGITUDE = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE);
+        String LONGITUDE_REF = exif.getAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF);
 
-    private Float convertToDegree(String stringDMS){
+        Float Latitude = null, Longitude = null;
+
+        if ((LATITUDE != null)
+                && (LATITUDE_REF != null)
+                && (LONGITUDE != null)
+                && (LONGITUDE_REF != null)) {
+
+            if (LATITUDE_REF.equals("N")) {
+                Latitude = convertToDegree(LATITUDE);
+            } else {
+                Latitude = 0 - convertToDegree(LATITUDE);
+            }
+
+            if (LONGITUDE_REF.equals("E")) {
+                Longitude = convertToDegree(LONGITUDE);
+            } else {
+                Longitude = 0 - convertToDegree(LONGITUDE);
+            }
+
+        }
+
+        t.setText(String.valueOf(Latitude));
+//            Log.d("lat gbr",latitude);
+        Toast.makeText(this, "latitude " + String.valueOf(Latitude), Toast.LENGTH_SHORT).show();
+    }
+
+    private Float convertToDegree(String stringDMS) {
         Float result;
         String[] DMS = stringDMS.split(",", 3);
 
         String[] stringD = DMS[0].split("/", 2);
         Double D0 = new Double(stringD[0]);
         Double D1 = new Double(stringD[1]);
-        Double FloatD = D0/D1;
+        Double FloatD = D0 / D1;
 
         String[] stringM = DMS[1].split("/", 2);
         Double M0 = new Double(stringM[0]);
         Double M1 = new Double(stringM[1]);
-        Double FloatM = M0/M1;
+        Double FloatM = M0 / M1;
 
         String[] stringS = DMS[2].split("/", 2);
         Double S0 = new Double(stringS[0]);
         Double S1 = new Double(stringS[1]);
-        Double FloatS = S0/S1;
+        Double FloatS = S0 / S1;
 
-        result = new Float(FloatD + (FloatM/60) + (FloatS/3600));
+        result = new Float(FloatD + (FloatM / 60) + (FloatS / 3600));
 
         return result;
 
 
-    };
+    }
+
+    ;
 
     /**
      * Creating file uri to store image/video
@@ -371,7 +375,7 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
         File mediaFile;
         if (type == MEDIA_TYPE_IMAGE) {
             mediaFile = new File(mediaStorageDir.getPath() + File.separator
-                    + "IMG_" + timeStamp + ".jpg");
+                    + "Tambang_" + timeStamp + ".jpg");
         } else {
             return null;
         }
