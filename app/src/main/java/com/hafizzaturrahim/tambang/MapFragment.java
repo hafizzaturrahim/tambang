@@ -1,6 +1,7 @@
 package com.hafizzaturrahim.tambang;
 
 import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -25,6 +26,13 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
@@ -41,7 +49,14 @@ import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.util.ArrayList;
+import java.util.Hashtable;
+import java.util.Map;
+import java.util.Random;
 
 import static android.R.id.list;
 import static android.app.Activity.RESULT_OK;
@@ -56,15 +71,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     MapView mMapView;
 
     LocationManager lm;
-    int counter = 0,hitung = 0;
+    int counter = 0, hitung = 0;
 
     LatLng currentLocation;
 
     boolean isTracking = false;
+    private static final String TAG = "MapFragment";
 
     private FloatingActionButton fabCamera, fabStart, fabLocation;
-
+    ArrayList<LatLng> point = new ArrayList<>();
+    ArrayList<LatLng> trackPoints = new ArrayList<>();
     PolylineOptions polyOptions;
+    Polyline trackLine;
 
     public MapFragment() {
         // Required empty public constructor
@@ -186,22 +204,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
             }
         });
     }
-
-    private void createPolyline() {
-        Polyline line;
-        PolylineOptions options = new PolylineOptions().width(5).color(Color.BLUE).geodesic(true);
-        options.add(new LatLng(12.780712, 77.770956),
-                new LatLng(12.912006, 77.229738),
-                new LatLng(12.572030, 77.999756));
-        line = googleMap.addPolyline(options);
-    }
+//
+//    private void createPolyline() {
+//        Polyline line;
+//        PolylineOptions options = new PolylineOptions().width(5).color(Color.BLUE).geodesic(true);
+//        options.add(new LatLng(12.780712, 77.770956),
+//                new LatLng(12.912006, 77.229738),
+//                new LatLng(12.572030, 77.999756));
+//        line = googleMap.addPolyline(options);
+//    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap = googleMap;
         mMapView.onResume();
-        Toast.makeText(getActivity(), "Mohon tunggu", Toast.LENGTH_SHORT).show();
-
+//        Toast.makeText(getActivity(), "Mohon tunggu", Toast.LENGTH_SHORT).show();
+        getPolyLine();
 //        createPolygon();
 //        createPolyline();
         // Add a marker in Sydney and move the camera
@@ -214,8 +232,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     public void onLocationChanged(Location location) {
 //        Log.v("latitude", String.valueOf(location.getLatitude()));
         LatLng position = new LatLng(location.getLatitude(), location.getLongitude());
+        currentLocation = position;
         if (counter == 0) {
-            currentLocation = position;
             counter++;
             SessionManager sessionManager = new SessionManager(getActivity());
             sessionManager.setLatitude((float) location.getLatitude());
@@ -227,7 +245,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         if (isTracking) {
             polyOptions.add(position);
             hitung++;
-            Log.v("latitude ke " +hitung, String.valueOf(position.latitude+ " dan " +position.longitude));
+            Log.v("latitude ke " + hitung, String.valueOf(position.latitude + " dan " + position.longitude));
+            redrawLine();
+
+
         }
 
     }
@@ -238,24 +259,64 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
     }
 
+    private void redrawLine(){
+
+        googleMap.clear();  //clears all Markers and Polylines
+
+        PolylineOptions options = new PolylineOptions().width(5).color(Color.BLUE).geodesic(true);
+        for (int i = 0; i < trackPoints.size(); i++) {
+            LatLng point = trackPoints.get(i);
+            options.add(point);
+        }
+        addMarker(); //add Marker in current position
+        trackLine = googleMap.addPolyline(options); //add Polyline
+    }
+
+    private void addMarker() {
+        MarkerOptions options = new MarkerOptions();
+
+        // following four lines requires 'Google Maps Android API Utility Library'
+        // https://developers.google.com/maps/documentation/android/utility/
+        // I have used this to display the time as title for location markers
+        // you can safely comment the following four lines but for this info
+//        IconGenerator iconFactory = new IconGenerator(this);
+//        iconFactory.setStyle(IconGenerator.STYLE_PURPLE);
+        // options.icon(BitmapDescriptorFactory.fromBitmap(iconFactory.makeIcon(mLastUpdateTime + requiredArea + city)));
+//        options.icon(BitmapDescriptorFactory.fromBitmap(iconFactory.makeIcon(requiredArea + ", " + city)));
+//        options.anchor(iconFactory.getAnchorU(), iconFactory.getAnchorV());
+
+        options.position(currentLocation);
+        Marker mapMarker = googleMap.addMarker(options);
+//        long atTime = mCurrentLocation.getTime();
+//        mLastUpdateTime = DateFormat.getTimeInstance().format(new Date(atTime));
+//        String title = mLastUpdateTime.concat(", " + requiredArea).concat(", " + city).concat(", " + country);
+        mapMarker.setTitle("tes");
+
+        Log.d(TAG, "Marker added.............................");
+        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation,
+                13));
+        Log.d(TAG, "Zoom done.............................");
+    }
+
     private void stopTracking() {
         Polyline polyline = googleMap.addPolyline(polyOptions);
-        Polyline polyline1 = googleMap.addPolyline(new PolylineOptions()
-                .clickable(true)
-                .color(0xff000000)
-                .add(
-                        new LatLng(-7.967548,110.9304117),
-                        new LatLng(-34.747, 145.592),
-                        new LatLng(-34.364, 147.891),
-                        new LatLng(-33.501, 150.217),
-                        new LatLng(-32.306, 149.248),
-                        new LatLng(-32.491, 147.309)));
+
+//        Polyline polyline1 = googleMap.addPolyline(new PolylineOptions()
+//                .clickable(true)
+//                .color(0xff000000)
+//                .add(
+//                        new LatLng(-7.967548, 110.9304117),
+//                        new LatLng(-34.747, 145.592),
+//                        new LatLng(-34.364, 147.891),
+//                        new LatLng(-33.501, 150.217),
+//                        new LatLng(-32.306, 149.248),
+//                        new LatLng(-32.491, 147.309)));
         Polyline polyline21 = googleMap.addPolyline(new PolylineOptions()
                 .clickable(true)
                 .color(Color.GREEN)
                 .add(
                         new LatLng(-34.747, 145.592),
-                        new LatLng(-8.967548,110.9304117),
+                        new LatLng(-8.967548, 110.9304117),
                         new LatLng(-34.364, 147.891),
                         new LatLng(-33.501, 150.217),
                         new LatLng(-32.306, 149.248),
@@ -276,6 +337,108 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
     @Override
     public void onProviderDisabled(String s) {
+
+    }
+
+    private void getPolyLine() {
+        String UPLOAD_URL = "http://192.168.1.9/gilinganlocal/polyLine.php";
+        //Showing the progress dialog
+        final ProgressDialog loading = new ProgressDialog(getActivity());
+        loading.setTitle("Mengambil data...");
+        loading.show();
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, UPLOAD_URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String result) {
+                        //Disimissing the progress dialog
+                        Log.v("result",result);
+                        parseJSON(result);
+                        loading.dismiss();
+                        //Showing toast message of the response
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        //Dismissing the progress dialog
+                        loading.dismiss();
+
+                        //Showing toast
+                        Toast.makeText(getActivity(), volleyError.getMessage().toString(), Toast.LENGTH_LONG).show();
+                    }
+                });
+
+        //Creating a Request Queue
+        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
+
+        //Adding request to the queue
+        requestQueue.add(stringRequest);
+    }
+
+    private void parseJSON(String result) {
+        String id = null;
+
+        if (!result.contains("gagal")) {
+            Log.v("hasil a","berhasil");
+            try {
+                JSONObject data = new JSONObject(result);
+                JSONArray dataAr = data.getJSONArray("data");
+                for (int i = 0; i < dataAr.length(); i++) {
+                    JSONObject polyObj = dataAr.getJSONObject(i);
+                    float lat = Float.parseFloat(polyObj.getString("lat"));
+                    float lng = Float.parseFloat(polyObj.getString("lng"));
+                    Log.v("hasil b", String.valueOf(lat));
+                    if (id == null) {
+                        Log.v("hasil c","kosong");
+                        id = polyObj.getString("id");
+                        point.add(new LatLng(lat, lng));
+                    } else {
+                        Log.v("hasil ","isi");
+                        String thisId = polyObj.getString("id");
+                        if (id.equals(thisId)) {
+                            Log.v("hasil d","sama");
+                            point.add(new LatLng(lat, lng));
+                        } else {
+                            createPolyLine();
+                            Log.v("hasil d","tidak sama");
+                            id = thisId;
+
+                        }
+                    }
+//                    if (jenis.equals("2")) {
+//                        isi_penolakan = insObj.getString("isi_pesan");
+//                        Log.d("penolakan", isi_penolakan);
+//                    }
+
+
+                }
+
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    private void createPolyLine() {
+        Integer[] warna = new Integer[]{
+                Color.GREEN,
+                Color.BLUE,
+                Color.RED,
+                Color.YELLOW
+        };
+        PolylineOptions polylineOptions = new PolylineOptions()
+                .clickable(true)
+                .geodesic(true)
+                .color(new Random().nextInt(warna.length));
+
+        for (int i = 0; i < point.size(); i++) {
+            polylineOptions.add(point.get(i));
+        }
+        Polyline polyline1 = googleMap.addPolyline(polylineOptions);
+        point.clear();
+
 
     }
 }
