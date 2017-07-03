@@ -81,8 +81,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     private FloatingActionButton fabCamera, fabStart, fabLocation;
     ArrayList<LatLng> point = new ArrayList<>();
     ArrayList<LatLng> trackPoints = new ArrayList<>();
-    PolylineOptions polyOptions;
     Polyline trackLine;
+    Marker trackMarker;
+    PolylineOptions polyOptions;
 
     public MapFragment() {
         // Required empty public constructor
@@ -137,6 +138,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
             @Override
             public void onClick(View view) {
                 stopTracking();
+                Toast.makeText(getActivity(), "Tracking berhenti", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -244,32 +246,27 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
         if (isTracking) {
             polyOptions.add(position);
+            trackPoints.add(position);
             hitung++;
             Log.v("latitude ke " + hitung, String.valueOf(position.latitude + " dan " + position.longitude));
-            redrawLine();
-
+//            Toast.makeText(getActivity(), "Lokasi " +hitung+" ,lat " +position.latitude, Toast.LENGTH_SHORT).show();
+            trackLine.setPoints(trackPoints);
+            trackMarker.setPosition(position);
+//            redrawLine();
 
         }
 
     }
 
     private void startTracking() {
+        Toast.makeText(getActivity(), "Memulai tracking", Toast.LENGTH_SHORT).show();
         isTracking = true;
+
+        addMarker();
         polyOptions = new PolylineOptions().width(5).color(Color.BLUE).geodesic(true);
+        polyOptions.add(currentLocation);
+        trackLine = googleMap.addPolyline(polyOptions); //add Polyline
 
-    }
-
-    private void redrawLine(){
-
-        googleMap.clear();  //clears all Markers and Polylines
-
-        PolylineOptions options = new PolylineOptions().width(5).color(Color.BLUE).geodesic(true);
-        for (int i = 0; i < trackPoints.size(); i++) {
-            LatLng point = trackPoints.get(i);
-            options.add(point);
-        }
-        addMarker(); //add Marker in current position
-        trackLine = googleMap.addPolyline(options); //add Polyline
     }
 
     private void addMarker() {
@@ -286,16 +283,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 //        options.anchor(iconFactory.getAnchorU(), iconFactory.getAnchorV());
 
         options.position(currentLocation);
-        Marker mapMarker = googleMap.addMarker(options);
+        trackMarker = googleMap.addMarker(options);
 //        long atTime = mCurrentLocation.getTime();
 //        mLastUpdateTime = DateFormat.getTimeInstance().format(new Date(atTime));
 //        String title = mLastUpdateTime.concat(", " + requiredArea).concat(", " + city).concat(", " + country);
-        mapMarker.setTitle("tes");
+        trackMarker.setTitle("Lokasi anda");
 
         Log.d(TAG, "Marker added.............................");
-        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation,
-                13));
-        Log.d(TAG, "Zoom done.............................");
+//        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 13));
     }
 
     private void stopTracking() {
