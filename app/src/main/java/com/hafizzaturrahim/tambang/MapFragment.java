@@ -180,6 +180,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     }
 
     private void initializeMap() {
+        getPolyLine();
         googleMap.addMarker(new MarkerOptions().position(currentLocation).title("Anda di sini"));
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(currentLocation).zoom(12).build();
@@ -221,7 +222,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         this.googleMap = googleMap;
         mMapView.onResume();
 //        Toast.makeText(getActivity(), "Mohon tunggu", Toast.LENGTH_SHORT).show();
-        getPolyLine();
+
 //        createPolygon();
 //        createPolyline();
         // Add a marker in Sydney and move the camera
@@ -336,7 +337,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     }
 
     private void getPolyLine() {
-        String UPLOAD_URL = "http://192.168.1.9/gilinganlocal/polyLine.php";
+        String UPLOAD_URL = "http://192.168.1.15/gilinganlocal/polyLine.php";
         //Showing the progress dialog
         final ProgressDialog loading = new ProgressDialog(getActivity());
         loading.setTitle("Mengambil data...");
