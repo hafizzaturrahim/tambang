@@ -180,12 +180,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     }
 
     private void initializeMap() {
+        getPolyLine();
         googleMap.addMarker(new MarkerOptions().position(currentLocation).title("Anda di sini"));
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(currentLocation).zoom(12).build();
         googleMap.animateCamera(CameraUpdateFactory
                 .newCameraPosition(cameraPosition));
-        getPolyLine();
 
 //        Polyline polyline21 = googleMap.addPolyline(new PolylineOptions()
 //                .clickable(true)
@@ -409,16 +409,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
                             createPolyLine();
                             Log.v("hasil d","tidak sama");
                             id = thisId;
-
                         }
                     }
-//                    if (jenis.equals("2")) {
-//                        isi_penolakan = insObj.getString("isi_pesan");
-//                        Log.d("penolakan", isi_penolakan);
-//                    }
-
-
                 }
+                createPolyLine();
 
 
             } catch (JSONException e) {
@@ -435,10 +429,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
                 Color.RED,
                 Color.YELLOW
         };
+        Random random = new Random();
+
         PolylineOptions polylineOptions = new PolylineOptions()
                 .clickable(true)
                 .geodesic(true)
-                .color(new Random().nextInt(warna.length));
+                .color(warna[random.nextInt(4)]);
 
         for (int i = 0; i < point.size(); i++) {
             polylineOptions.add(point.get(i));
