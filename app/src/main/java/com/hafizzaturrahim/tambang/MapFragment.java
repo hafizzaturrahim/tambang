@@ -180,12 +180,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     }
 
     private void initializeMap() {
-        getPolyLine();
         googleMap.addMarker(new MarkerOptions().position(currentLocation).title("Anda di sini"));
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(currentLocation).zoom(12).build();
         googleMap.animateCamera(CameraUpdateFactory
                 .newCameraPosition(cameraPosition));
+        getPolyLine();
+
+//        Polyline polyline21 = googleMap.addPolyline(new PolylineOptions()
+//                .clickable(true)
+//                .color(Color.GREEN)
+//                .add(
+//                        new LatLng(-34.747, 145.592),
+//                        new LatLng(-8.967548, 110.9304117),
+//                        new LatLng(-34.364, 147.891)
+//                       ));
+
     }
 
     private void createPolygon() {
@@ -307,16 +317,17 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 //                        new LatLng(-33.501, 150.217),
 //                        new LatLng(-32.306, 149.248),
 //                        new LatLng(-32.491, 147.309)));
-        Polyline polyline21 = googleMap.addPolyline(new PolylineOptions()
-                .clickable(true)
-                .color(Color.GREEN)
-                .add(
-                        new LatLng(-34.747, 145.592),
-                        new LatLng(-8.967548, 110.9304117),
-                        new LatLng(-34.364, 147.891),
-                        new LatLng(-33.501, 150.217),
-                        new LatLng(-32.306, 149.248),
-                        new LatLng(-32.491, 147.309)));
+
+//        Polyline polyline21 = googleMap.addPolyline(new PolylineOptions()
+//                .clickable(true)
+//                .color(Color.GREEN)
+//                .add(
+//                        new LatLng(-34.747, 145.592),
+//                        new LatLng(-8.967548, 110.9304117),
+//                        new LatLng(-34.364, 147.891),
+//                        new LatLng(-33.501, 150.217),
+//                        new LatLng(-32.306, 149.248),
+//                        new LatLng(-32.491, 147.309)));
 
         isTracking = false;
     }
@@ -337,7 +348,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     }
 
     private void getPolyLine() {
-        String UPLOAD_URL = "http://192.168.1.15/gilinganlocal/polyLine.php";
+        String UPLOAD_URL = "http://192.168.1.4/gilinganlocal/polyLine.php";
         //Showing the progress dialog
         final ProgressDialog loading = new ProgressDialog(getActivity());
         loading.setTitle("Mengambil data...");
@@ -431,6 +442,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
         for (int i = 0; i < point.size(); i++) {
             polylineOptions.add(point.get(i));
+            Log.v("point", String.valueOf(point.get(i).latitude));
         }
         Polyline polyline1 = googleMap.addPolyline(polylineOptions);
         point.clear();
