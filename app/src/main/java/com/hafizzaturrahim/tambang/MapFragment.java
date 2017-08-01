@@ -89,7 +89,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         // Required empty public constructor
     }
 
-
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -442,7 +441,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         }
         Polyline polyline1 = googleMap.addPolyline(polylineOptions);
         point.clear();
+    }
 
+    private void createJSONArray(){
+        JSONArray jsonArray = new JSONArray(point);
+        String jsonResult = jsonArray.toString();
+
+        Log.v(TAG, "createJSONArray: "+ jsonResult);
 
     }
 }
