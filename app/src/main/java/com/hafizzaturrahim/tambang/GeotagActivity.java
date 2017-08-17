@@ -3,10 +3,8 @@ package com.hafizzaturrahim.tambang;
 
 import android.app.ProgressDialog;
 import android.content.ContentValues;
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
@@ -14,7 +12,6 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
-import android.support.annotation.Nullable;
 import android.support.media.ExifInterface;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -36,24 +33,15 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.squareup.picasso.Picasso;
-
-import org.w3c.dom.Text;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.io.InputStream;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Map;
-
-import static android.R.attr.bitmap;
-import static android.R.attr.path;
-import static android.provider.MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE;
 
 public class GeotagActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -84,7 +72,7 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
     // directory name to store captured images and videos
     private static final String IMAGE_DIRECTORY_NAME = "Tambang";
 
-    private Uri fileUri; // file url to store image/video
+    private Uri fileUri; // file base_url to store image/video
 
 
     @Override
@@ -235,7 +223,7 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        // save file url in bundle as it will be null on scren orientation
+        // save file base_url in bundle as it will be null on scren orientation
         // changes
         outState.putParcelable("file_uri", fileUri);
     }
@@ -247,7 +235,7 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
-        // get the file url
+        // get the file base_url
         fileUri = savedInstanceState.getParcelable("file_uri");
     }
 
@@ -395,7 +383,7 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void uploadImage() {
-        String UPLOAD_URL = Config.url + "/upload.php";
+        String UPLOAD_URL = Config.base_url + "/upload.php";
         //Showing the progress dialog
         final ProgressDialog loading = ProgressDialog.show(this, "Uploading...", "Please wait...", false, false);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, UPLOAD_URL,

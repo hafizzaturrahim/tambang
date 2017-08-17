@@ -3,10 +3,8 @@ package com.hafizzaturrahim.tambang;
 import android.Manifest;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
@@ -16,17 +14,12 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AlertDialog;
 import android.util.Log;
-import android.view.ContextThemeWrapper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 import android.widget.Toast;
 
-import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -36,10 +29,7 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
-import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -48,18 +38,16 @@ import com.google.android.gms.maps.model.Polygon;
 import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.gson.Gson;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Hashtable;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-
-import static android.R.id.list;
-import static android.app.Activity.RESULT_OK;
 
 
 /**
@@ -99,8 +87,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         mMapView = (MapView) v.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
         mMapView.getMapAsync(this);
-
-
+        
         fabStart = (FloatingActionButton) v.findViewById(R.id.fabStart);
         fabStart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -329,6 +316,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 //                        new LatLng(-32.491, 147.309)));
 
         isTracking = false;
+//        createJSONArray();
     }
 
     @Override
@@ -347,7 +335,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     }
 
     private void getPolyLine() {
-        String UPLOAD_URL = "http://192.168.1.4/gilinganlocal/polyLine.php";
+        String UPLOAD_URL = Config.base_url + "/selectPolyLine.php";
         //Showing the progress dialog
         final ProgressDialog loading = new ProgressDialog(getActivity());
         loading.setTitle("Mengambil data...");
@@ -357,7 +345,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
                     @Override
                     public void onResponse(String result) {
                         //Disimissing the progress dialog
-                        Log.v("result",result);
+                        Log.v("result", result);
                         parseJSON(result);
                         loading.dismiss();
                         //Showing toast message of the response
@@ -385,7 +373,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         String id = null;
 
         if (!result.contains("gagal")) {
-            Log.v("hasil a","berhasil");
+            Log.v("hasil a", "berhasil");
             try {
                 JSONObject data = new JSONObject(result);
                 JSONArray dataAr = data.getJSONArray("data");
@@ -395,18 +383,18 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
                     float lng = Float.parseFloat(polyObj.getString("lng"));
                     Log.v("hasil b", String.valueOf(lat));
                     if (id == null) {
-                        Log.v("hasil c","kosong");
+                        Log.v("hasil c", "kosong");
                         id = polyObj.getString("id");
                         point.add(new LatLng(lat, lng));
                     } else {
-                        Log.v("hasil ","isi");
+                        Log.v("hasil ", "isi");
                         String thisId = polyObj.getString("id");
                         if (id.equals(thisId)) {
-                            Log.v("hasil d","sama");
+                            Log.v("hasil d", "sama");
                             point.add(new LatLng(lat, lng));
                         } else {
                             createPolyLine();
-                            Log.v("hasil d","tidak sama");
+                            Log.v("hasil d", "tidak sama");
                             id = thisId;
                         }
                     }
@@ -443,11 +431,54 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         point.clear();
     }
 
-    private void createJSONArray(){
-        JSONArray jsonArray = new JSONArray(point);
-        String jsonResult = jsonArray.toString();
+    private String createJSONArray() {
+        JSONArray jsonArray = new JSONArray(trackPoints);
+        String jsonResult = new Gson().toJson(trackPoints);
 
-        Log.v(TAG, "createJSONArray: "+ jsonResult);
+        Log.v(TAG, "createJSONArray: " + jsonResult);
+        return jsonResult;
+    }
 
+    private void sendPolyLine() {
+        String URL = Config.base_url + "/sendPolyLine.php";
+        //Showing the progress dialog
+        final ProgressDialog loading = new ProgressDialog(getActivity());
+        loading.setTitle("Mengambil data...");
+        loading.show();
+        StringRequest stringRequest = new StringRequest(Request.Method.POST, URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String result) {
+                        //Disimissing the progress dialog
+                        Log.v("result", result);
+                        parseJSON(result);
+                        loading.dismiss();
+                        //Showing toast message of the response
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        //Dismissing the progress dialog
+                        loading.dismiss();
+
+                        //Showing toast
+//                        Toast.makeText(getActivity(), volleyError.getMessage().toString(), Toast.LENGTH_LONG).show();
+                    }
+                }) {
+            @Override
+            protected Map<String, String> getParams() {
+                Map<String, String> params = new HashMap<>();
+                params.put("polyline", createJSONArray());
+                params.put("nama", "nama tracking");
+                return params;
+            }
+        };
+
+        //Creating a Request Queue
+        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
+
+        //Adding request to the queue
+        requestQueue.add(stringRequest);
     }
 }

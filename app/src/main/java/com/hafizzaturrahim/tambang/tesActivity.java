@@ -33,7 +33,7 @@ public class tesActivity extends AppCompatActivity {
     // directory name to store captured images and videos
     private static final String IMAGE_DIRECTORY_NAME = "Hello Camera";
 
-    private Uri fileUri; // file url to store image/video
+    private Uri fileUri; // file base_url to store image/video
 
     private ImageView imgPreview;
     private Button buttontakeImage;
@@ -101,14 +101,14 @@ public class tesActivity extends AppCompatActivity {
     }
 
     /**
-     * Here we store the file url as it will be null after returning from camera
+     * Here we store the file base_url as it will be null after returning from camera
      * app
      */
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
 
-        // save file url in bundle as it will be null on scren orientation
+        // save file base_url in bundle as it will be null on scren orientation
         // changes
         outState.putParcelable("file_uri", fileUri);
     }
@@ -117,7 +117,7 @@ public class tesActivity extends AppCompatActivity {
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
 
-        // get the file url
+        // get the file base_url
         fileUri = savedInstanceState.getParcelable("file_uri");
     }
 

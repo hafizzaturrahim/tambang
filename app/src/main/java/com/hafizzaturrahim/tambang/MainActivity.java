@@ -47,6 +47,13 @@ public class MainActivity extends AppCompatActivity
         onNavigationItemSelected(navigationView.getMenu().findItem(R.id.nav_beranda));
     }
 
+    private void isLoggedIn(){
+        SessionManager sessionManager = new SessionManager(this);
+        if (!sessionManager.isLoggedIn()) {
+
+        }
+    }
+
     @Override
     public void onBackPressed() {
 
