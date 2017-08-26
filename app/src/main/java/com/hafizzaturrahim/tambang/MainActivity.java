@@ -1,6 +1,7 @@
 package com.hafizzaturrahim.tambang;
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
@@ -23,6 +24,7 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        isLoggedIn();
         setContentView(R.layout.activity_main);
         pDialog = new ProgressDialog(this);
 
@@ -50,7 +52,9 @@ public class MainActivity extends AppCompatActivity
     private void isLoggedIn(){
         SessionManager sessionManager = new SessionManager(this);
         if (!sessionManager.isLoggedIn()) {
-
+            Intent intent = new Intent(MainActivity.this,LoginActivity.class);
+            startActivity(intent);
+            finish();
         }
     }
 
@@ -81,12 +85,19 @@ public class MainActivity extends AppCompatActivity
 
         if (id == R.id.nav_beranda) {
             fragment = new MapFragment();
-            title = "Beranda";
-        } else if (id == R.id.nav_statistik) {
-//            fragment = new GraphFragment();
-//            title = "Statistik";
+            title = getString(R.string.nav_home);
+        } else if (id == R.id.nav_geotag) {
             fragment = new MapFragment();
-            title = "Beranda";
+            title =  getString(R.string.nav_geotag);
+        }else if (id == R.id.nav_tracking) {
+            fragment = new MapFragment();
+            title =  getString(R.string.nav_tracking);
+        }else if (id == R.id.nav_kml) {
+            fragment = new MapFragment();
+            title =  getString(R.string.nav_kml);
+        }else if (id == R.id.nav_logout) {
+            fragment = new MapFragment();
+            title =  getString(R.string.nav_logout);
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);

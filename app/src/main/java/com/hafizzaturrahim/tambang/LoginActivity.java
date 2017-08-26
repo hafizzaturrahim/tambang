@@ -77,47 +77,51 @@ public class LoginActivity extends AppCompatActivity {
         }
     }
 
-    private void getDataUser() {
-        pDialog.setMessage("Memproses Data...");
-        pDialog.show();
-        /*Json Request*/
-        String url = Config.base_url + "/login.php?";
-        Log.d("login", url);
-        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String response) {
-                        Log.d("login response", response);
-                        parseJSON(response);
-                        newActivity();
-                        pDialog.dismiss();
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError error) {
-                        pDialog.dismiss();
-                        Toast.makeText(LoginActivity.this, "Terjadi kesalahan, coba lagi", Toast.LENGTH_SHORT).show();
-                        if (error != null) {
-                            error.printStackTrace();
-
-                        }
-                    }
-                }) {
-            @Override
-            protected Map<String, String> getParams() {
-                Map<String, String> params = new HashMap<String, String>();
-                params.put("name", username);
-                params.put("pass",password);
-                return params;
-            }
-        };
-
-        //add request to queue
-        RequestQueue requestQueue = Volley.newRequestQueue(this);
-        requestQueue.add(stringRequest);
-
+    private void getDataUser(){
+        isSuccess = true;
+        newActivity();
     }
+//    private void getDataUser() {
+//        pDialog.setMessage("Memproses Data...");
+//        pDialog.show();
+//        /*Json Request*/
+//        String url = Config.base_url + "/login.php?";
+//        Log.d("login", url);
+//        StringRequest stringRequest = new StringRequest(Request.Method.POST, url,
+//                new Response.Listener<String>() {
+//                    @Override
+//                    public void onResponse(String response) {
+//                        Log.d("login response", response);
+//                        parseJSON(response);
+//                        newActivity();
+//                        pDialog.dismiss();
+//                    }
+//                },
+//                new Response.ErrorListener() {
+//                    @Override
+//                    public void onErrorResponse(VolleyError error) {
+//                        pDialog.dismiss();
+//                        Toast.makeText(LoginActivity.this, "Terjadi kesalahan, coba lagi", Toast.LENGTH_SHORT).show();
+//                        if (error != null) {
+//                            error.printStackTrace();
+//
+//                        }
+//                    }
+//                }) {
+//            @Override
+//            protected Map<String, String> getParams() {
+//                Map<String, String> params = new HashMap<String, String>();
+//                params.put("name", username);
+//                params.put("pass",password);
+//                return params;
+//            }
+//        };
+//
+//        //add request to queue
+//        RequestQueue requestQueue = Volley.newRequestQueue(this);
+//        requestQueue.add(stringRequest);
+//
+//    }
 
     private void parseJSON(String result) {
         if (!result.contains("gagal")) {

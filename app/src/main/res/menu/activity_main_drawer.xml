@@ -4,33 +4,24 @@
     <group android:checkableBehavior="single">
         <item
             android:id="@+id/nav_beranda"
-            android:icon="@drawable/ic_menu_camera"
-            android:title="Beranda" />
+            android:icon="@drawable/ic_home_black_24dp"
+            android:title="@string/nav_home" />
         <item
-            android:id="@+id/nav_statistik"
+            android:id="@+id/nav_geotag"
             android:icon="@drawable/ic_menu_gallery"
-            android:title="Geotag" />
+            android:title="@string/nav_geotag" />
         <item
-            android:id="@+id/nav_slideshow"
+            android:id="@+id/nav_tracking"
             android:icon="@drawable/ic_menu_slideshow"
-            android:title="Tracking" />
+            android:title="@string/nav_tracking" />
         <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Tools" />
+            android:id="@+id/nav_kml"
+            android:icon="@drawable/ic_library_books_black_24dp"
+            android:title="@string/nav_kml" />
+        <item
+            android:id="@+id/nav_logout"
+            android:icon="@drawable/ic_power_settings_new_black_24dp"
+            android:title="@string/nav_logout" />
     </group>
-
-    <!--<item android:title="Communicate">-->
-        <!--<menu>-->
-            <!--<item-->
-                <!--android:id="@+id/nav_share"-->
-                <!--android:icon="@drawable/ic_menu_share"-->
-                <!--android:title="Share" />-->
-            <!--<item-->
-                <!--android:id="@+id/nav_send"-->
-                <!--android:icon="@drawable/ic_menu_send"-->
-                <!--android:title="Send" />-->
-        <!--</menu>-->
-    <!--</item>-->
 
 </menu>

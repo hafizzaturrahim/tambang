@@ -5,6 +5,12 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
+    <string name="nav_home">Beranda</string>
+    <string name="nav_geotag">Geotag</string>
+    <string name="nav_tracking">Tracking</string>
+    <string name="nav_kml">Lihat KML</string>
+    <string name="nav_logout">Logout</string>
+
     <string name="action_settings">Settings</string>
 
     <!-- TODO: Remove or change this placeholder text -->

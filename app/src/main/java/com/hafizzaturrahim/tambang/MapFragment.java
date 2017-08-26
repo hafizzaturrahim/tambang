@@ -1,8 +1,10 @@
 package com.hafizzaturrahim.tambang;
 
 import android.Manifest;
+import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Color;
@@ -14,10 +16,13 @@ import android.os.Bundle;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
+import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.Toast;
 
 import com.android.volley.Request;
@@ -30,6 +35,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
@@ -73,6 +79,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     Marker trackMarker;
     PolylineOptions polyOptions;
 
+    ProgressDialog loading;
+
     public MapFragment() {
         // Required empty public constructor
     }
@@ -87,44 +95,79 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         mMapView = (MapView) v.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
         mMapView.getMapAsync(this);
-        
+        loading = new ProgressDialog(getActivity());
+        loading.setMessage("Mencari lokasi...");
+        loading.show();
+
         fabStart = (FloatingActionButton) v.findViewById(R.id.fabStart);
+        fabStart.hide();
         fabStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                startTracking();
-//                AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
-//                alert.setTitle("Memulai Tracking");
-//                alert.setMessage("Apakah anda akan memulai tracking?");
-//                alert.setNegativeButton("Tidak",
-//                        new DialogInterface.OnClickListener() {
-//                            @Override
-//                            public void onClick(DialogInterface dialog,
-//                                                int which) {
-//                                dialog.dismiss();
-//                            }
-//                        });
-//                alert.setPositiveButton("Ya",
-//                        new DialogInterface.OnClickListener() {
-//                            @Override
-//                            public void onClick(DialogInterface dialog,
-//                                                int which) {
-//
-//                                dialog.dismiss();
-//                            }
-//                        });
-//
-//                alert.show();
+                AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+                alert.setTitle("Memulai Tracking");
+                alert.setMessage("Apakah anda akan memulai tracking?");
+
+                alert.setPositiveButton("Ya",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                startTracking();
+                                fabStart.hide();
+                                dialog.dismiss();
+                            }
+                        });
+                alert.setNegativeButton("Tidak",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+
+                                dialog.dismiss();
+//                                animate();
+
+                            }
+                        });
+
+                alert.show();
+
 
             }
         });
 
+        
         fabLocation = (FloatingActionButton) v.findViewById(R.id.fabGetLocation);
         fabLocation.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                stopTracking();
-                Toast.makeText(getActivity(), "Tracking berhenti", Toast.LENGTH_SHORT).show();
+                AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
+                alert.setTitle("Menghentikan Tracking");
+                alert.setMessage("Apakah anda akan menghentikan tracking?");
+                alert.setPositiveButton("Ya",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+                                stopTracking();
+                                Toast.makeText(getActivity(), "Tracking berhenti", Toast.LENGTH_SHORT).show();
+                                dialog.dismiss();
+                            }
+                        });
+
+                alert.setNegativeButton("Tidak",
+                        new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialog,
+                                                int which) {
+
+                                dialog.dismiss();
+                            }
+                        });
+
+                alert.show();
+
+
             }
         });
 
@@ -165,6 +208,37 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         return v;
     }
 
+    private void animate() {
+        FastOutSlowInInterpolator fastOutSlowInInterpolator = new FastOutSlowInInterpolator();
+        fabStart.clearAnimation();
+        if (fabStart.getVisibility() == View.GONE) {
+            fabStart.setVisibility(View.VISIBLE);
+        } else {
+            fabStart.setVisibility(View.GONE);
+        }
+        Animation anim = android.view.animation.AnimationUtils.loadAnimation(
+                fabStart.getContext(), R.anim.design_fab_in);
+        anim.setDuration(1500);
+        anim.setInterpolator(fastOutSlowInInterpolator);
+        anim.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+
+            }
+        });
+        fabStart.startAnimation(anim);
+    }
+
     private void initializeMap() {
         getPolyLine();
         googleMap.addMarker(new MarkerOptions().position(currentLocation).title("Anda di sini"));
@@ -172,6 +246,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
                 .target(currentLocation).zoom(12).build();
         googleMap.animateCamera(CameraUpdateFactory
                 .newCameraPosition(cameraPosition));
+        fabStart.show();
 
 //        Polyline polyline21 = googleMap.addPolyline(new PolylineOptions()
 //                .clickable(true)
@@ -232,6 +307,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 //        Log.v("latitude", String.valueOf(location.getLatitude()));
         LatLng position = new LatLng(location.getLatitude(), location.getLongitude());
         currentLocation = position;
+        //mengetahui lokasi saat ini
         if (counter == 0) {
             counter++;
             SessionManager sessionManager = new SessionManager(getActivity());
@@ -241,6 +317,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
             Toast.makeText(getActivity(), "Lokasi didapatkan", Toast.LENGTH_SHORT).show();
         }
 
+        //mengetahui apakah tracking aktif
         if (isTracking) {
             polyOptions.add(position);
             trackPoints.add(position);
@@ -248,6 +325,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
             Log.v("latitude ke " + hitung, String.valueOf(position.latitude + " dan " + position.longitude));
 //            Toast.makeText(getActivity(), "Lokasi " +hitung+" ,lat " +position.latitude, Toast.LENGTH_SHORT).show();
             trackLine.setPoints(trackPoints);
+
+            trackMarker.setIcon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN));
             trackMarker.setPosition(position);
 //            redrawLine();
 
@@ -268,16 +347,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
     private void addMarker() {
         MarkerOptions options = new MarkerOptions();
-
-        // following four lines requires 'Google Maps Android API Utility Library'
-        // https://developers.google.com/maps/documentation/android/utility/
-        // I have used this to display the time as title for location markers
-        // you can safely comment the following four lines but for this info
-//        IconGenerator iconFactory = new IconGenerator(this);
-//        iconFactory.setStyle(IconGenerator.STYLE_PURPLE);
-        // options.icon(BitmapDescriptorFactory.fromBitmap(iconFactory.makeIcon(mLastUpdateTime + requiredArea + city)));
-//        options.icon(BitmapDescriptorFactory.fromBitmap(iconFactory.makeIcon(requiredArea + ", " + city)));
-//        options.anchor(iconFactory.getAnchorU(), iconFactory.getAnchorV());
 
         options.position(currentLocation);
         trackMarker = googleMap.addMarker(options);
@@ -337,9 +406,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     private void getPolyLine() {
         String UPLOAD_URL = Config.base_url + "/selectPolyLine.php";
         //Showing the progress dialog
-        final ProgressDialog loading = new ProgressDialog(getActivity());
-        loading.setTitle("Mengambil data...");
-        loading.show();
+
         StringRequest stringRequest = new StringRequest(Request.Method.GET, UPLOAD_URL,
                 new Response.Listener<String>() {
                     @Override
