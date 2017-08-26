@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kml xmlns="http://www.opengis.net/kml/2.2" xmlns:gx="http://www.google.com/kml/ext/2.2" xmlns:kml="http://www.opengis.net/kml/2.2" xmlns:atom="http://www.w3.org/2005/Atom">
+<Document>
+	<name>Line Features.kml</name>
+	<Style id="line1">
+		<IconStyle>
+			<Icon>
+			</Icon>
+		</IconStyle>
+		<LineStyle>
+			<color>ffff00ff</color>
+		</LineStyle>
+	</Style>
+	<Style id="line2">
+		<IconStyle>
+			<Icon>
+			</Icon>
+		</IconStyle>
+		<LineStyle>
+			<color>ff0000ff</color>
+		</LineStyle>
+	</Style>
+	<Folder>
+		<name>Line Features</name>
+		<description>Line Features</description>
+		<Placemark>
+			<description>0</description>
+			<styleUrl>#line1</styleUrl>
+			<LineString>
+				<coordinates>
+					117.1749962929,-0.4999973162,0 117.1916672541,-0.4999973867000001,0 117.1916635084,-0.5833311094,0 117.1666699729,-0.5833319105,0 117.1666700256,-0.5999999696,0 117.1499968134,-0.6000004554,0 117.1499982318,-0.6500017302,0 117.1333357881,-0.6500022007,0 117.1333362308,-0.6666672850000001,0 117.0833306967,-0.6666683924,0 117.0833291418,-0.5666686572,0 117.1333337428,-0.5666677159,0 117.1333333674,-0.5500026254,0 117.1499955085,-0.5500022273,0 117.1500040859,-0.5333371477,0 117.174997205,-0.5333364834,0 117.1749973566,-0.4999973162,0 
+				</coordinates>
+			</LineString>
+		</Placemark>
+		<Placemark>
+			<description>0</description>
+			<styleUrl>#line2</styleUrl>
+			<LineString>
+				<coordinates>
+					117.1499982318,-0.6500017302,0 117.1383459256,-0.650002065,0 117.1383555029,-0.645599008,0 117.1383555029,-0.645599008,0 117.1400412051,-0.6456121901,0 117.1400411172,-0.6423942106,0 117.1412309814,-0.6423659201,0 117.1412308709,-0.6383295637000001,0 117.1427026895,-0.6383320905,0 117.1427026174,-0.6357124524,0 117.1437619903,-0.635702741,0 117.1437618995,-0.6324085129,0 117.1448484122,-0.6324341503000001,0 117.1448483009,-0.628406926,0 117.1468259473,-0.6284068704,0 117.1468248406,-0.6251308707,0 117.1499975121,-0.6251307804,0 117.1499982318,-0.6500017302,0 117.1383459256,-0.650002065,0 
+				</coordinates>
+			</LineString>
+		</Placemark>
+	</Folder>
+</Document>
+</kml>

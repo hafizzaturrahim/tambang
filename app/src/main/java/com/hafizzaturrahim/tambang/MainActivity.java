@@ -93,7 +93,7 @@ public class MainActivity extends AppCompatActivity
             fragment = new MapFragment();
             title =  getString(R.string.nav_tracking);
         }else if (id == R.id.nav_kml) {
-            fragment = new MapFragment();
+            fragment = new KmlFragment();
             title =  getString(R.string.nav_kml);
         }else if (id == R.id.nav_logout) {
             fragment = new MapFragment();

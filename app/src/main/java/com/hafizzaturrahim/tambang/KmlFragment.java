@@ -2,58 +2,34 @@ package com.hafizzaturrahim.tambang;
 
 
 import android.Manifest;
-import android.app.AlertDialog;
 import android.app.ProgressDialog;
 import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
-import android.support.v4.view.animation.FastOutSlowInInterpolator;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.animation.Animation;
 import android.widget.Toast;
 
-import com.android.volley.Request;
-import com.android.volley.RequestQueue;
-import com.android.volley.Response;
-import com.android.volley.VolleyError;
-import com.android.volley.toolbox.StringRequest;
-import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.android.gms.maps.model.Polygon;
-import com.google.android.gms.maps.model.PolygonOptions;
-import com.google.android.gms.maps.model.Polyline;
-import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.gson.Gson;
+import com.google.maps.android.kml.KmlLayer;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
+import org.xmlpull.v1.XmlPullParserException;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Random;
+import java.io.IOException;
 
 
 /**
@@ -64,7 +40,7 @@ public class KmlFragment extends Fragment implements OnMapReadyCallback, Locatio
     MapView mMapView;
 
     LocationManager lm;
-    int counter = 0, hitung = 0;
+    int counter = 0;
 
     LatLng currentLocation;
 
@@ -81,12 +57,22 @@ public class KmlFragment extends Fragment implements OnMapReadyCallback, Locatio
         View v = inflater.inflate(R.layout.fragment_kml, container, false);
 
         //initialize map
-        mMapView = (MapView) v.findViewById(R.id.mapView);
+        mMapView = (MapView) v.findViewById(R.id.mapViewKml);
         mMapView.onCreate(savedInstanceState);
         mMapView.getMapAsync(this);
+
         loading = new ProgressDialog(getActivity());
         loading.setMessage("Mencari lokasi...");
         loading.show();
+
+        //check if latlng session is empty
+        SessionManager sessionManager = new SessionManager(getActivity());
+        Log.v("kmlfragment", "lat " +String.valueOf(sessionManager.getLatitude()));
+//        if (sessionManager.getLatitude() != 0){
+//            currentLocation = new LatLng(sessionManager.getLatitude(), sessionManager.getLongitude());
+//            counter++;
+//            initializeMap();
+//        }
 
         //initialize location manager
         lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
@@ -121,7 +107,24 @@ public class KmlFragment extends Fragment implements OnMapReadyCallback, Locatio
                 .target(currentLocation).zoom(12).build();
         googleMap.animateCamera(CameraUpdateFactory
                 .newCameraPosition(cameraPosition));
+        loadKml();
         loading.dismiss();
+    }
+
+    private void loadKml(){
+        KmlLayer layerArea;
+        KmlLayer layerLine;
+        try {
+            layerArea = new KmlLayer(googleMap, R.raw.area, getActivity());
+            layerLine = new KmlLayer(googleMap, R.raw.line, getActivity());
+            layerArea.addLayerToMap();
+            layerLine.addLayerToMap();
+        } catch (XmlPullParserException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
     @Override
@@ -133,14 +136,11 @@ public class KmlFragment extends Fragment implements OnMapReadyCallback, Locatio
     @Override
     public void onLocationChanged(Location location) {
 //        Log.v("latitude", String.valueOf(location.getLatitude()));
-        LatLng position = new LatLng(location.getLatitude(), location.getLongitude());
-        currentLocation = position;
+        currentLocation = new LatLng(location.getLatitude(), location.getLongitude());
         //mengetahui lokasi saat ini
         if (counter == 0) {
             counter++;
-            SessionManager sessionManager = new SessionManager(getActivity());
-            sessionManager.setLatitude((float) location.getLatitude());
-            sessionManager.setLongitude((float) location.getLongitude());
+
             initializeMap();
             Toast.makeText(getActivity(), "Lokasi didapatkan", Toast.LENGTH_SHORT).show();
         }
