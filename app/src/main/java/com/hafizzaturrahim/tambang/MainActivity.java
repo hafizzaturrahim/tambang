@@ -16,6 +16,9 @@ import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
 import android.widget.Toast;
 
+import com.hafizzaturrahim.tambang.beranda.MapFragment;
+import com.hafizzaturrahim.tambang.kml.KmlFragment;
+
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
 

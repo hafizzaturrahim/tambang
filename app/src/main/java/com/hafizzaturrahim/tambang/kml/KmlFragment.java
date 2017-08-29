@@ -1,4 +1,4 @@
-package com.hafizzaturrahim.tambang;
+package com.hafizzaturrahim.tambang.kml;
 
 
 import android.Manifest;
@@ -26,6 +26,8 @@ import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.maps.android.kml.KmlLayer;
+import com.hafizzaturrahim.tambang.R;
+import com.hafizzaturrahim.tambang.SessionManager;
 
 import org.xmlpull.v1.XmlPullParserException;
 

@@ -79,6 +79,7 @@ public class LoginActivity extends AppCompatActivity {
 
     private void getDataUser(){
         isSuccess = true;
+        id = "1";
         newActivity();
     }
 //    private void getDataUser() {

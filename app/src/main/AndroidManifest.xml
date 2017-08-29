@@ -41,7 +41,6 @@
              You can define the keys for the debug and release targets in src/debug/ and src/release/. 
         -->
         <activity android:name=".GeotagActivity"></activity>
-        <activity android:name=".tesActivity"></activity>
         <activity android:name=".LoginActivity"></activity>
 
         <meta-data

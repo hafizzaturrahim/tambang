@@ -1,4 +1,4 @@
-package com.hafizzaturrahim.tambang;
+package com.hafizzaturrahim.tambang.beranda;
 
 import android.Manifest;
 import android.app.AlertDialog;
@@ -13,10 +13,12 @@ import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.animation.FastOutSlowInInterpolator;
+import android.text.InputType;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,6 +27,7 @@ import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
 import android.widget.Toast;
 
+import com.afollestad.materialdialogs.MaterialDialog;
 import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
@@ -45,6 +48,10 @@ import com.google.android.gms.maps.model.PolygonOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
+import com.hafizzaturrahim.tambang.Config;
+import com.hafizzaturrahim.tambang.GeotagActivity;
+import com.hafizzaturrahim.tambang.R;
+import com.hafizzaturrahim.tambang.SessionManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -98,6 +105,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         loading = new ProgressDialog(getActivity());
         loading.setMessage("Mencari lokasi...");
         loading.show();
+
 
         fabStart = (FloatingActionButton) v.findViewById(R.id.fabStart);
         fabStart.hide();
@@ -241,22 +249,13 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
     private void initializeMap() {
         getPolyLine();
-        googleMap.addMarker(new MarkerOptions().position(currentLocation).title("Anda di sini"));
+//        createPolyLine();
+        googleMap.addMarker(new MarkerOptions().position(currentLocation).title("Titik awal anda"));
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(currentLocation).zoom(12).build();
         googleMap.animateCamera(CameraUpdateFactory
                 .newCameraPosition(cameraPosition));
         fabStart.show();
-
-//        Polyline polyline21 = googleMap.addPolyline(new PolylineOptions()
-//                .clickable(true)
-//                .color(Color.GREEN)
-//                .add(
-//                        new LatLng(-34.747, 145.592),
-//                        new LatLng(-8.967548, 110.9304117),
-//                        new LatLng(-34.364, 147.891)
-//                       ));
-
     }
 
     private void createPolygon() {
@@ -278,15 +277,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
             }
         });
     }
-//
-//    private void createPolyline() {
-//        Polyline line;
-//        PolylineOptions options = new PolylineOptions().width(5).color(Color.BLUE).geodesic(true);
-//        options.add(new LatLng(12.780712, 77.770956),
-//                new LatLng(12.912006, 77.229738),
-//                new LatLng(12.572030, 77.999756));
-//        line = googleMap.addPolyline(options);
-//    }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
@@ -334,6 +324,123 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
     }
 
+    private void getPolyLine() {
+        String URL = Config.base_url + "/selectPolyLine.php";
+        //Showing the progress dialog
+
+        Log.v("URL ", URL);
+        StringRequest stringRequest = new StringRequest(Request.Method.GET, URL,
+                new Response.Listener<String>() {
+                    @Override
+                    public void onResponse(String result) {
+                        //Disimissing the progress dialog
+                        Log.v("result polyline", result);
+                        parseJSON(result);
+                        loading.dismiss();
+                        //Showing toast message of the response
+                    }
+                },
+                new Response.ErrorListener() {
+                    @Override
+                    public void onErrorResponse(VolleyError volleyError) {
+                        //Dismissing the progress dialog
+                        loading.dismiss();
+
+                        //Showing toast
+//                        Toast.makeText(getActivity(), volleyError.getMessage().toString(), Toast.LENGTH_LONG).show();
+                        Toast.makeText(getActivity(), "Terjadi kesalahan dalam mengambil data", Toast.LENGTH_LONG).show();
+                    }
+                });
+
+        //Creating a Request Queue
+        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
+
+        //Adding request to the queue
+        requestQueue.add(stringRequest);
+    }
+
+    private void parseJSON(String result) {
+
+        if (!result.contains("gagal")) {
+            Log.v("hasil a", "berhasil");
+            try {
+                JSONObject data = new JSONObject(result);
+                JSONArray dataAr = data.getJSONArray("data");
+
+                int jumlahTracking = 0;
+                String id = null;
+                for (int i = 0; i < dataAr.length(); i++) {
+                    JSONObject polyObj = dataAr.getJSONObject(i);
+
+                    //read from json result
+                    float lat = Float.parseFloat(polyObj.getString("lat"));
+                    float lng = Float.parseFloat(polyObj.getString("lng"));
+
+                    Log.v("hasil b", String.valueOf(lat));
+                    if (id == null) {
+                        Log.v("hasil c", "kosong");
+                        jumlahTracking++;
+                        id = polyObj.getString("id_tracking");
+                        //initiate the result for the first time
+                    } else {
+                        Log.v("hasil ", "isi");
+                        String thisId = polyObj.getString("id_tracking");
+                        if (id.equals(thisId)) {
+                            Log.v("hasil d", "sama");
+
+                        } else {
+                            createPolyLine();
+                            Log.v("hasil d", "tidak sama");
+                            id = thisId;
+                            jumlahTracking++;
+                        }
+                    }
+                    //add point if point still in the same track
+                    point.add(new LatLng(lat, lng));
+                }
+                Log.v("jumlah track", String.valueOf(jumlahTracking));
+                createPolyLine();
+
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
+        }
+    }
+
+    private void createPolyLine() {
+        Integer[] warna = new Integer[]{
+                Color.GREEN,
+                Color.BLUE,
+                Color.RED,
+                Color.YELLOW
+        };
+        Random random = new Random();
+
+        PolylineOptions polylineOptions = new PolylineOptions()
+                .clickable(true)
+                .geodesic(true)
+                .color(warna[random.nextInt(4)]);
+
+        for (int i = 0; i < point.size(); i++) {
+            polylineOptions.add(point.get(i));
+        }
+        Polyline polyline1 = googleMap.addPolyline(polylineOptions);
+
+        //clearing point to add new tracking
+        point.clear();
+    }
+
+
+//    private void createPolyLine() {
+//        Polyline line;
+//        PolylineOptions options = new PolylineOptions().width(5).color(Color.BLUE).geodesic(true);
+//        options.add(new LatLng(-7.95029578, 112.61739377),
+//                new LatLng(12.912006, 77.229738),
+//                new LatLng(12.572030, 77.999756));
+//        line = googleMap.addPolyline(options);
+//    }
+
     private void startTracking() {
         Toast.makeText(getActivity(), "Memulai tracking", Toast.LENGTH_SHORT).show();
         isTracking = true;
@@ -373,19 +480,33 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 //                        new LatLng(-32.306, 149.248),
 //                        new LatLng(-32.491, 147.309)));
 
-//        Polyline polyline21 = googleMap.addPolyline(new PolylineOptions()
-//                .clickable(true)
-//                .color(Color.GREEN)
-//                .add(
-//                        new LatLng(-34.747, 145.592),
-//                        new LatLng(-8.967548, 110.9304117),
-//                        new LatLng(-34.364, 147.891),
-//                        new LatLng(-33.501, 150.217),
-//                        new LatLng(-32.306, 149.248),
-//                        new LatLng(-32.491, 147.309)));
-
         isTracking = false;
+        sendPolyLine();
 //        createJSONArray();
+    }
+
+    private void giveTitleTrackingDialog(){
+        new MaterialDialog.Builder(getActivity())
+                .title("Tracking Baru")
+                .content("Berikan nama untuk tracking yang baru dibuat")
+                .inputType(
+                        InputType.TYPE_CLASS_TEXT
+                                | InputType.TYPE_TEXT_VARIATION_PERSON_NAME
+                                | InputType.TYPE_TEXT_FLAG_CAP_WORDS)
+                .inputRange(2, 16)
+                .positiveText("Submit")
+                .input(
+                        null,
+                        null,
+                        false,
+                        new MaterialDialog.InputCallback() {
+                            @Override
+                            public void onInput(@NonNull MaterialDialog dialog, CharSequence input) {
+                                String titleTracking = input.toString();
+//                                changeStatus("4", message);
+                            }
+                        })
+                .show();
     }
 
     @Override
@@ -403,103 +524,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
     }
 
-    private void getPolyLine() {
-        String UPLOAD_URL = Config.base_url + "/selectPolyLine.php";
-        //Showing the progress dialog
 
-        StringRequest stringRequest = new StringRequest(Request.Method.GET, UPLOAD_URL,
-                new Response.Listener<String>() {
-                    @Override
-                    public void onResponse(String result) {
-                        //Disimissing the progress dialog
-                        Log.v("result", result);
-                        parseJSON(result);
-                        loading.dismiss();
-                        //Showing toast message of the response
-                    }
-                },
-                new Response.ErrorListener() {
-                    @Override
-                    public void onErrorResponse(VolleyError volleyError) {
-                        //Dismissing the progress dialog
-                        loading.dismiss();
-
-                        //Showing toast
-//                        Toast.makeText(getActivity(), volleyError.getMessage().toString(), Toast.LENGTH_LONG).show();
-                    }
-                });
-
-        //Creating a Request Queue
-        RequestQueue requestQueue = Volley.newRequestQueue(getActivity());
-
-        //Adding request to the queue
-        requestQueue.add(stringRequest);
-    }
-
-    private void parseJSON(String result) {
-        String id = null;
-
-        if (!result.contains("gagal")) {
-            Log.v("hasil a", "berhasil");
-            try {
-                JSONObject data = new JSONObject(result);
-                JSONArray dataAr = data.getJSONArray("data");
-                for (int i = 0; i < dataAr.length(); i++) {
-                    JSONObject polyObj = dataAr.getJSONObject(i);
-                    float lat = Float.parseFloat(polyObj.getString("lat"));
-                    float lng = Float.parseFloat(polyObj.getString("lng"));
-                    Log.v("hasil b", String.valueOf(lat));
-                    if (id == null) {
-                        Log.v("hasil c", "kosong");
-                        id = polyObj.getString("id");
-                        point.add(new LatLng(lat, lng));
-                    } else {
-                        Log.v("hasil ", "isi");
-                        String thisId = polyObj.getString("id");
-                        if (id.equals(thisId)) {
-                            Log.v("hasil d", "sama");
-                            point.add(new LatLng(lat, lng));
-                        } else {
-                            createPolyLine();
-                            Log.v("hasil d", "tidak sama");
-                            id = thisId;
-                        }
-                    }
-                }
-                createPolyLine();
-
-
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-
-        }
-    }
-
-    private void createPolyLine() {
-        Integer[] warna = new Integer[]{
-                Color.GREEN,
-                Color.BLUE,
-                Color.RED,
-                Color.YELLOW
-        };
-        Random random = new Random();
-
-        PolylineOptions polylineOptions = new PolylineOptions()
-                .clickable(true)
-                .geodesic(true)
-                .color(warna[random.nextInt(4)]);
-
-        for (int i = 0; i < point.size(); i++) {
-            polylineOptions.add(point.get(i));
-            Log.v("point", String.valueOf(point.get(i).latitude));
-        }
-        Polyline polyline1 = googleMap.addPolyline(polylineOptions);
-        point.clear();
-    }
 
     private String createJSONArray() {
-        JSONArray jsonArray = new JSONArray(trackPoints);
         String jsonResult = new Gson().toJson(trackPoints);
 
         Log.v(TAG, "createJSONArray: " + jsonResult);
@@ -510,7 +537,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         String URL = Config.base_url + "/sendPolyLine.php";
         //Showing the progress dialog
         final ProgressDialog loading = new ProgressDialog(getActivity());
-        loading.setTitle("Mengambil data...");
+        loading.setMessage("Mengirim data...");
         loading.show();
         StringRequest stringRequest = new StringRequest(Request.Method.POST, URL,
                 new Response.Listener<String>() {
@@ -518,7 +545,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
                     public void onResponse(String result) {
                         //Disimissing the progress dialog
                         Log.v("result", result);
-                        parseJSON(result);
                         loading.dismiss();
                         //Showing toast message of the response
                     }
@@ -532,10 +558,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
                         //Showing toast
 //                        Toast.makeText(getActivity(), volleyError.getMessage().toString(), Toast.LENGTH_LONG).show();
                     }
-                }) {
+                })
+        {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();
+                params.put("id_user", "1");
                 params.put("polyline", createJSONArray());
                 params.put("nama", "nama tracking");
                 return params;
