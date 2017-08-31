@@ -1,4 +1,4 @@
-package com.hafizzaturrahim.tambang;
+package com.hafizzaturrahim.tambang.geotag;
 
 
 import android.app.ProgressDialog;
@@ -33,6 +33,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.hafizzaturrahim.tambang.R;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -52,7 +53,8 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
 
     private ImageView imageView;
 
-    private EditText editTextName;
+    private EditText edttitleGeotag;
+
     private Uri mCapturedImageURI;
     private Bitmap bitmap;
 
@@ -83,7 +85,7 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
         buttonChoose = (Button) findViewById(R.id.buttonChoose);
         buttonUpload = (Button) findViewById(R.id.buttonUpload);
         buttontakeImage = (Button) findViewById(R.id.takeImage);
-        editTextName = (EditText) findViewById(R.id.editText);
+        edttitleGeotag = (EditText) findViewById(R.id.editText);
 
         imageView = (ImageView) findViewById(R.id.imgPhotoResult);
 
@@ -383,7 +385,7 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void uploadImage() {
-        String UPLOAD_URL = Config.base_url + "/upload.php";
+        String UPLOAD_URL = "http://dolanbatu.com/side/upload.php";
         //Showing the progress dialog
         final ProgressDialog loading = ProgressDialog.show(this, "Uploading...", "Please wait...", false, false);
         StringRequest stringRequest = new StringRequest(Request.Method.POST, UPLOAD_URL,
@@ -412,10 +414,10 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
                 String image = getStringImage(bitmap);
 
                 //Getting Image Name
-                String name = editTextName.getText().toString().trim();
+                String name = edttitleGeotag.getText().toString().trim();
 
                 //Creating parameters
-                Map<String, String> params = new Hashtable<String, String>();
+                Map<String, String> params = new Hashtable<>();
 
                 //Adding parameters
                 params.put(KEY_IMAGE, image);
@@ -440,7 +442,10 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
         } else if (v == buttonUpload) {
             if (imageView.getDrawable() == null) {
                 Toast.makeText(this, "Foto tidak ditemukan", Toast.LENGTH_SHORT).show();
-            } else {
+            }else if(edttitleGeotag.getText().toString().isEmpty()){
+                edttitleGeotag.setError("Judul harus diisi");
+            }
+            else {
                 uploadImage();
             }
         } else if (v == buttontakeImage) {

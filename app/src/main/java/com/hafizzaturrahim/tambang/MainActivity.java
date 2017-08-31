@@ -18,6 +18,7 @@ import android.widget.Toast;
 
 import com.hafizzaturrahim.tambang.beranda.MapFragment;
 import com.hafizzaturrahim.tambang.kml.KmlFragment;
+import com.hafizzaturrahim.tambang.tracking.ListTrackingFragment;
 
 public class MainActivity extends AppCompatActivity
         implements NavigationView.OnNavigationItemSelectedListener {
@@ -44,10 +45,6 @@ public class MainActivity extends AppCompatActivity
         navigationView.setNavigationItemSelectedListener(this);
 
         View hView = navigationView.getHeaderView(0);
-
-//        TextView nav_nama = (TextView) hView.findViewById(R.id.nav_nama);
-//
-//        nav_nama.setText("Halo, " + sessionManager.getUsername());
 
         onNavigationItemSelected(navigationView.getMenu().findItem(R.id.nav_beranda));
     }
@@ -93,7 +90,7 @@ public class MainActivity extends AppCompatActivity
             fragment = new MapFragment();
             title =  getString(R.string.nav_geotag);
         }else if (id == R.id.nav_tracking) {
-            fragment = new MapFragment();
+            fragment = new ListTrackingFragment();
             title =  getString(R.string.nav_tracking);
         }else if (id == R.id.nav_kml) {
             fragment = new KmlFragment();
