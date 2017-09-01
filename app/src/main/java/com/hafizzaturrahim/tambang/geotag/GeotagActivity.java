@@ -82,7 +82,6 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_geotag);
 
-        buttonChoose = (Button) findViewById(R.id.buttonChoose);
         buttonUpload = (Button) findViewById(R.id.buttonUpload);
         buttontakeImage = (Button) findViewById(R.id.takeImage);
         edttitleGeotag = (EditText) findViewById(R.id.editText);
@@ -90,7 +89,6 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
         imageView = (ImageView) findViewById(R.id.imgPhotoResult);
 
         t = (TextView) findViewById(R.id.lat);
-        buttonChoose.setOnClickListener(this);
         buttonUpload.setOnClickListener(this);
         buttontakeImage.setOnClickListener(this);
 
@@ -438,7 +436,7 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onClick(View v) {
         if (v == buttonChoose) {
-            showFileChooser();
+//            showFileChooser();
         } else if (v == buttonUpload) {
             if (imageView.getDrawable() == null) {
                 Toast.makeText(this, "Foto tidak ditemukan", Toast.LENGTH_SHORT).show();

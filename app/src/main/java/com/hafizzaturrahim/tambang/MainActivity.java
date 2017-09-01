@@ -1,11 +1,13 @@
 package com.hafizzaturrahim.tambang;
 
 import android.app.ProgressDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v7.app.AlertDialog;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -25,9 +27,12 @@ public class MainActivity extends AppCompatActivity
 
     private ProgressDialog pDialog;
     long lastPress;
+    SessionManager sessionManager;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+        sessionManager = new SessionManager(this);
         isLoggedIn();
         setContentView(R.layout.activity_main);
         pDialog = new ProgressDialog(this);
@@ -50,7 +55,6 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void isLoggedIn(){
-        SessionManager sessionManager = new SessionManager(this);
         if (!sessionManager.isLoggedIn()) {
             Intent intent = new Intent(MainActivity.this,LoginActivity.class);
             startActivity(intent);
@@ -92,12 +96,36 @@ public class MainActivity extends AppCompatActivity
         }else if (id == R.id.nav_tracking) {
             fragment = new ListTrackingFragment();
             title =  getString(R.string.nav_tracking);
-        }else if (id == R.id.nav_kml) {
-            fragment = new KmlFragment();
-            title =  getString(R.string.nav_kml);
+//        }else if (id == R.id.nav_kml) {
+//            fragment = new KmlFragment();
+//            title =  getString(R.string.nav_kml);
         }else if (id == R.id.nav_logout) {
-            fragment = new MapFragment();
-            title =  getString(R.string.nav_logout);
+            android.app.AlertDialog.Builder alert = new android.app.AlertDialog.Builder(this);
+            alert.setTitle("Logout");
+            alert.setMessage("Apakah anda ingin melakukan logout?");
+
+            alert.setPositiveButton("Ya",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog,
+                                            int which) {
+                            logout();
+                            dialog.dismiss();
+                        }
+                    });
+            alert.setNegativeButton("Tidak",
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog,
+                                            int which) {
+
+                            dialog.dismiss();
+//                                animate();
+
+                        }
+                    });
+
+            alert.show();
         }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
@@ -112,5 +140,12 @@ public class MainActivity extends AppCompatActivity
             // set the toolbar title
             getSupportActionBar().setTitle(title);
         }
+    }
+
+    private void logout(){
+        sessionManager.logoutUser();
+        Intent intent  = new Intent(MainActivity.this, LoginActivity.class);
+        startActivity(intent);
+        finish();
     }
 }

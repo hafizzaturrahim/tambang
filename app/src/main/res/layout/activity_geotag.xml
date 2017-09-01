@@ -9,11 +9,11 @@
     >
 
 
-    <Button
-        android:id="@+id/buttonChoose"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Choose Image" />
+    <!--<Button-->
+        <!--android:id="@+id/buttonChoose"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:text="Choose Image" />-->
 
     <Button
         android:id="@+id/takeImage"
@@ -21,14 +21,10 @@
         android:layout_height="wrap_content"
         android:text="Take Image" />
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="tes"
-        android:id="@+id/lat"/>
 
     <ImageView
         android:id="@+id/imgPhotoResult"
+        android:layout_marginTop="@dimen/activity_vertical_margin"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="0.62" />
@@ -36,7 +32,7 @@
 
     <EditText
         android:id="@+id/editText"
-        android:hint="Enter a Name"
+        android:hint="Judul gambar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
