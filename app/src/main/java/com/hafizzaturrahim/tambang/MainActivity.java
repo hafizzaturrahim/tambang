@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 
 import com.hafizzaturrahim.tambang.beranda.MapFragment;
+import com.hafizzaturrahim.tambang.geotag.ListGeotagFragment;
 import com.hafizzaturrahim.tambang.kml.KmlFragment;
 import com.hafizzaturrahim.tambang.tracking.ListTrackingFragment;
 
@@ -91,7 +92,7 @@ public class MainActivity extends AppCompatActivity
             fragment = new MapFragment();
             title = getString(R.string.nav_home);
         } else if (id == R.id.nav_geotag) {
-            fragment = new MapFragment();
+            fragment = new ListGeotagFragment();
             title =  getString(R.string.nav_geotag);
         }else if (id == R.id.nav_tracking) {
             fragment = new ListTrackingFragment();

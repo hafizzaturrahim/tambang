@@ -88,7 +88,7 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
 
         imageView = (ImageView) findViewById(R.id.imgPhotoResult);
 
-        t = (TextView) findViewById(R.id.lat);
+//        t = (TextView) findViewById(R.id.lat);
         buttonUpload.setOnClickListener(this);
         buttontakeImage.setOnClickListener(this);
 

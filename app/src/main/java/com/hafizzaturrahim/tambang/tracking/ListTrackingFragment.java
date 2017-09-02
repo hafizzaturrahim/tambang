@@ -55,6 +55,7 @@ public class ListTrackingFragment extends Fragment {
         //Showing the progress dialog
         final ProgressDialog loading = new ProgressDialog(getActivity());
         loading.setMessage("Mengambil data...");
+        loading.show();
         Log.v("URL ", URL);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, URL,
                 new Response.Listener<String>() {
@@ -73,7 +74,6 @@ public class ListTrackingFragment extends Fragment {
                     public void onErrorResponse(VolleyError volleyError) {
                         //Dismissing the progress dialog
                         loading.dismiss();
-
                         Toast.makeText(getActivity(), "Terjadi kesalahan dalam mengambil data", Toast.LENGTH_LONG).show();
                     }
                 });
