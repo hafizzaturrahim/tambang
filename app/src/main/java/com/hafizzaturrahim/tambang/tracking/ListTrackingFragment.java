@@ -2,12 +2,14 @@ package com.hafizzaturrahim.tambang.tracking;
 
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -19,6 +21,8 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.model.LatLng;
 import com.hafizzaturrahim.tambang.Config;
+import com.hafizzaturrahim.tambang.LoginActivity;
+import com.hafizzaturrahim.tambang.MapsActivity;
 import com.hafizzaturrahim.tambang.R;
 
 import org.json.JSONArray;
@@ -47,6 +51,17 @@ public class ListTrackingFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_list_tracking, container, false);
         lvTracking = (ListView) v.findViewById(R.id.list_Tracking);
         getTracking();
+
+        lvTracking.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(getActivity(), MapsActivity.class);
+                String id_tracking = trackingArrayList.get(position).getId_tracking();
+
+                intent.putExtra("id_tracking",id_tracking);
+                getActivity().startActivity(intent);
+            }
+        });
         return v;
     }
 
@@ -95,10 +110,12 @@ public class ListTrackingFragment extends Fragment {
                 for (int i = 0; i < dataAr.length(); i++) {
                     JSONObject jsonObject = dataAr.getJSONObject(i);
 
+                    String id_tracking = jsonObject.getString("id_tracking");
                     String nama = jsonObject.getString("nama");
                     String tanggal = jsonObject.getString("tanggal");
 
                     Tracking tracking = new Tracking();
+                    tracking.setId_tracking(id_tracking);
                     tracking.setNama(nama);
                     tracking.setTanggal(tanggal);
 
@@ -114,7 +131,15 @@ public class ListTrackingFragment extends Fragment {
 
     private void setAdapter(){
         TrackingAdapter adapter = new TrackingAdapter(getActivity(),trackingArrayList);
-        lvTracking.setAdapter(adapter);
+        if(lvTracking.getAdapter() == null){ //Adapter not set yet.
+            lvTracking.setAdapter(adapter);
+        }
+        else{ //Already has an adapter
+            lvTracking.setAdapter(adapter);
+            adapter.notifyDataSetChanged();
+            lvTracking.invalidateViews();
+            lvTracking.refreshDrawableState();
+        }
     }
 
 }

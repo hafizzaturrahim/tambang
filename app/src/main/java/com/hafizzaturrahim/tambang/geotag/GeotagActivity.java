@@ -58,8 +58,6 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
     private Uri mCapturedImageURI;
     private Bitmap bitmap;
 
-    private String KEY_IMAGE = "image";
-    private String KEY_NAME = "name";
     private String mCurrentPhotoPath;
     // Activity request codes
     private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100;
@@ -68,8 +66,7 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
     private int PICK_IMAGE_REQUEST = 2;
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
-
-    TextView t;
+    String lat,lng;
 
     // directory name to store captured images and videos
     private static final String IMAGE_DIRECTORY_NAME = "Tambang";
@@ -294,10 +291,11 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
             } else {
                 Longitude = 0 - convertToDegree(LONGITUDE);
             }
-
         }
 
-        t.setText(String.valueOf(Latitude));
+        lat = String.valueOf(Latitude);
+        lng = String.valueOf(Longitude);
+
 //            Log.d("lat gbr",latitude);
         Toast.makeText(this, "latitude " + String.valueOf(Latitude), Toast.LENGTH_SHORT).show();
     }
@@ -418,8 +416,10 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
                 Map<String, String> params = new Hashtable<>();
 
                 //Adding parameters
-                params.put(KEY_IMAGE, image);
-                params.put(KEY_NAME, name);
+//                params.put(KEY_IMAGE, image);
+                params.put("nama", name);
+                params.put("lat", lat);
+                params.put("lng",lng);
 
                 //returning parameters
                 return params;

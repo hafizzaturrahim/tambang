@@ -178,8 +178,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
                         });
 
                 alert.show();
-
-
             }
         });
 

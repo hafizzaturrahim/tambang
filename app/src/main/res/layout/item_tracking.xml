@@ -1,23 +1,47 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:gravity="center"
+    android:orientation="horizontal"
     android:paddingBottom="8dp"
     android:paddingLeft="@dimen/activity_horizontal_margin"
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="8dp">
 
-    <TextView
-        android:layout_width="wrap_content"
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/txt_TitleTracking"
-        android:text="Judul Tracking"
-        android:textColor="@color/colorPrimary"
-        android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Title"/>
+        android:layout_weight="1"
+        android:paddingRight="8dp"
+        android:orientation="vertical">
 
-    <TextView
-        android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/txt_TitleTracking"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Judul Tracking"
+            android:textAppearance="@style/TextAppearance.Widget.AppCompat.Toolbar.Title"
+            android:textColor="@color/colorPrimary" />
+
+        <TextView
+            android:id="@+id/txt_date"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="tanggal" />
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/btn_delete"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/txt_date"
-        android:text="tanggal"/>
+        android:layout_weight="2"
+        android:drawableLeft="@drawable/ic_delete_white_24dp"
+        android:focusable="false"
+        android:focusableInTouchMode="false"
+        android:paddingLeft="8dp"
+        android:paddingRight="8dp"
+        android:text="hapus"
+        android:theme="@style/DangerButton" />
+
 </LinearLayout>
