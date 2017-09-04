@@ -62,6 +62,8 @@ public class TrackingAdapter extends ArrayAdapter<Tracking> {
                             public void onClick(DialogInterface dialog,
                                                 int which) {
                                 deleteTracking(trackings.get(position).getId_tracking());
+                                notifyDataSetChanged();
+                                removeFromList(position);
                                 dialog.dismiss();
                             }
                         });
@@ -89,10 +91,10 @@ public class TrackingAdapter extends ArrayAdapter<Tracking> {
     }
 
     private void deleteTracking(String id){
-        String URL = Config.base_url + "/selectTracking.php";
+        String URL = Config.base_url + "/deleteTracking.php?id=" +id;
         //Showing the progress dialog
         final ProgressDialog loading = new ProgressDialog(context);
-        loading.setMessage("Mengambil data...");
+        loading.setMessage("Menghapus data...");
         loading.show();
         Log.v("URL ", URL);
         StringRequest stringRequest = new StringRequest(Request.Method.GET, URL,
@@ -119,5 +121,9 @@ public class TrackingAdapter extends ArrayAdapter<Tracking> {
 
         //Adding request to the queue
         requestQueue.add(stringRequest);
+    }
+
+    private void removeFromList(int position){
+        trackings.remove(trackings.get(position));
     }
 }
