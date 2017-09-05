@@ -19,10 +19,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.google.android.gms.maps.model.LatLng;
 import com.hafizzaturrahim.tambang.Config;
-import com.hafizzaturrahim.tambang.LoginActivity;
-import com.hafizzaturrahim.tambang.MapsActivity;
 import com.hafizzaturrahim.tambang.R;
 
 import org.json.JSONArray;

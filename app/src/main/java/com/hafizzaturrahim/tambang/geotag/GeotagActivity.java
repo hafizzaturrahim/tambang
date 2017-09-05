@@ -34,6 +34,7 @@ import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.hafizzaturrahim.tambang.R;
+import com.hafizzaturrahim.tambang.SessionManager;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -293,8 +294,18 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
             }
         }
 
-        lat = String.valueOf(Latitude);
-        lng = String.valueOf(Longitude);
+        SessionManager sessionManager = new SessionManager(this);
+        if(Latitude != 0 ){
+            lat = String.valueOf(Latitude);
+        }else{
+            lat = String.valueOf(sessionManager.getLatitude());
+        }
+
+        if (Longitude != 0){
+            lng = String.valueOf(Longitude);
+        }else{
+            lng = String.valueOf(sessionManager.getLongitude());
+        }
 
 //            Log.d("lat gbr",latitude);
         Toast.makeText(this, "latitude " + String.valueOf(Latitude), Toast.LENGTH_SHORT).show();

@@ -7,7 +7,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -37,6 +39,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.BitmapDescriptor;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
@@ -81,7 +84,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     boolean isTracking = false;
     private static final String TAG = "MapFragment";
 
-    private FloatingActionButton fabCamera, fabStart, fabLocation;
+    private FloatingActionButton fabCamera, fabStart, fabStop;
     ArrayList<LatLng> point = new ArrayList<>();
     ArrayList<LatLng> trackPoints = new ArrayList<>();
 
@@ -110,9 +113,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         loading.setMessage("Mencari lokasi...");
         loading.show();
 
-
         fabStart = (FloatingActionButton) v.findViewById(R.id.fabStart);
         fabStart.hide();
+//        showFab(false);
         fabStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -149,8 +152,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         });
 
         
-        fabLocation = (FloatingActionButton) v.findViewById(R.id.fabGetLocation);
-        fabLocation.setOnClickListener(new View.OnClickListener() {
+        fabStop = (FloatingActionButton) v.findViewById(R.id.fabGetLocation);
+        fabStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
@@ -260,6 +263,21 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         googleMap.animateCamera(CameraUpdateFactory
                 .newCameraPosition(cameraPosition));
         fabStart.show();
+//        showFab(true);
+    }
+    
+    private void showFab(boolean isShow){
+        if (isShow){
+            fabStart.show();
+        }else {
+            fabStart.hide();
+        }
+        
+        if (fabStart.isShown()){
+            fabStop.hide();
+        }else{
+            fabStop.show();
+        }
     }
 
     private void loadKml(){
@@ -524,9 +542,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     }
 
     private void addMarkerGeotag(String title,LatLng position) {
-        MarkerOptions options = new MarkerOptions();
+        int height = 85;
+        int width = 55;
+        BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.ic_marker);
+        Bitmap b=bitmapdraw.getBitmap();
+        Bitmap icon = Bitmap.createScaledBitmap(b, width, height, false);
 
-        options.position(position);
+        MarkerOptions options = new MarkerOptions().position(position)
+                .title(title)
+                .snippet("geotag")
+                .icon(BitmapDescriptorFactory.fromBitmap(icon));
+
+//        .snippet("Thinking of finding some thing...")
+
+
         trackMarker = googleMap.addMarker(options);
 
         trackMarker.setTitle(title);

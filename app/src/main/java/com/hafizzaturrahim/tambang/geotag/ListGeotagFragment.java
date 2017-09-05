@@ -2,12 +2,14 @@ package com.hafizzaturrahim.tambang.geotag;
 
 
 import android.app.ProgressDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ListView;
 import android.widget.Toast;
 
@@ -17,8 +19,10 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.google.android.gms.maps.model.LatLng;
 import com.hafizzaturrahim.tambang.Config;
 import com.hafizzaturrahim.tambang.R;
+import com.hafizzaturrahim.tambang.tracking.MapsActivity;
 import com.hafizzaturrahim.tambang.tracking.Tracking;
 import com.hafizzaturrahim.tambang.tracking.TrackingAdapter;
 
@@ -49,6 +53,23 @@ public class ListGeotagFragment extends Fragment {
         View v = inflater.inflate(R.layout.fragment_list_geotag, container, false);
         listGeotag = (ListView) v.findViewById(R.id.list_Geotag);
         getGeotag();
+
+        listGeotag.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(getActivity(), DetailGeotagActivity.class);
+                Geotag geotag = geotagArrayList.get(position);
+                Log.v("geo lat lg", String.valueOf(geotag.getLat()));
+                Log.v("geo lng lg", String.valueOf(geotag.getLng()));
+                LatLng pos = new LatLng(geotag.getLat(),geotag.getLng());
+                Bundle args = new Bundle();
+                args.putParcelable("position", pos);
+
+                intent.putExtra("geo",geotag);
+                intent.putExtra("bundle",args);
+                getActivity().startActivity(intent);
+            }
+        });
         return v;
     }
 
@@ -98,9 +119,21 @@ public class ListGeotagFragment extends Fragment {
                     JSONObject jsonObject = dataAr.getJSONObject(i);
 
                     String nama = jsonObject.getString("nama");
+                    String id_marker = jsonObject.getString("id_marker");
+                    String id_user = jsonObject.getString("id_user");
+                    String image = jsonObject.getString("image");
+                    Double lat = jsonObject.getDouble("lat");
+                    Double lng = jsonObject.getDouble("lng");
+
                     Geotag geotag = new Geotag();
                     geotag.setNama(nama);
+                    geotag.setId_marker(id_marker);
+                    geotag.setId_user(id_user);
+                    geotag.setImage(image);
+                    geotag.setLat(lat);
+                    geotag.setLng(lng);
 
+                    Log.v("isi lat", String.valueOf(geotag.getLat()));
                     geotagArrayList.add(geotag);
                 }
 

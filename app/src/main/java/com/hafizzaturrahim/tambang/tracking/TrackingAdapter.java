@@ -48,6 +48,7 @@ public class TrackingAdapter extends ArrayAdapter<Tracking> {
 
         //Declarasi komponen
         TextView title = (TextView) v.findViewById(R.id.txt_TitleTracking);
+        TextView date = (TextView) v.findViewById(R.id.txt_date);
         Button deleteBtn = (Button) v.findViewById(R.id.btn_delete);
 
         deleteBtn.setOnClickListener(new View.OnClickListener() {
@@ -86,6 +87,7 @@ public class TrackingAdapter extends ArrayAdapter<Tracking> {
 
         //Set ItemSpinner Value
         title.setText(trackings.get(position).getNama());
+        date.setText(trackings.get(position).getTanggal());
 
         return v;
     }

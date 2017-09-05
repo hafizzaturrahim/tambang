@@ -35,6 +35,8 @@ public class GeotagAdapter extends ArrayAdapter<Geotag> {
 
         //Declarasi komponen
         TextView title = (TextView) v.findViewById(R.id.txt_TitleTracking);
+        TextView date = (TextView) v.findViewById(R.id.txt_date);
+        date.setVisibility(View.GONE);
 
         //Set ItemSpinner Value
         title.setText(geotags.get(position).getNama());

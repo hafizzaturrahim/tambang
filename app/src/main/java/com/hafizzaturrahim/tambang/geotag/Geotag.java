@@ -1,10 +1,13 @@
 package com.hafizzaturrahim.tambang.geotag;
 
+import android.os.Parcel;
+import android.os.Parcelable;
+
 /**
  * Created by Hafizh on 01/09/2017.
  */
 
-public class Geotag {
+public class Geotag implements Parcelable{
     String id_marker;
     String id_user;
     String nama;
@@ -14,6 +17,25 @@ public class Geotag {
 
     public Geotag() {
     }
+
+    protected Geotag(Parcel in) {
+        id_marker = in.readString();
+        id_user = in.readString();
+        nama = in.readString();
+        image = in.readString();
+    }
+
+    public static final Creator<Geotag> CREATOR = new Creator<Geotag>() {
+        @Override
+        public Geotag createFromParcel(Parcel in) {
+            return new Geotag(in);
+        }
+
+        @Override
+        public Geotag[] newArray(int size) {
+            return new Geotag[size];
+        }
+    };
 
     public String getId_marker() {
         return id_marker;
@@ -61,5 +83,18 @@ public class Geotag {
 
     public void setImage(String image) {
         this.image = image;
+    }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(id_marker);
+        parcel.writeString(id_user);
+        parcel.writeString(nama);
+        parcel.writeString(image);
     }
 }

@@ -1,9 +1,8 @@
-package com.hafizzaturrahim.tambang;
+package com.hafizzaturrahim.tambang.tracking;
 
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.graphics.Color;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
@@ -20,18 +19,18 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapView;
 import com.google.android.gms.maps.OnMapReadyCallback;
-import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
+import com.hafizzaturrahim.tambang.Config;
+import com.hafizzaturrahim.tambang.R;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.util.ArrayList;
-import java.util.Random;
 
 public class MapsActivity extends AppCompatActivity implements OnMapReadyCallback {
 
@@ -82,10 +81,11 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         Intent intent = getIntent();
         String id_tracking = intent.getStringExtra("id_tracking");
         getPolyLine(id_tracking);
+
     }
 
     private void getPolyLine(String id_tracking) {
-        String URL = Config.base_url + "/selectPolyLine.php?id_tracking=" +id_tracking;
+        String URL = Config.base_url + "/selectPolyLine.php?id_tracking=" + id_tracking;
         //Showing the progress dialog
         final ProgressDialog loading = new ProgressDialog(this);
         loading.setMessage("Mengambil data...");
@@ -100,6 +100,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
                         Log.v("result polyline", result);
                         parseJSON(result);
                         loading.dismiss();
+                        moveCamera();
                         //Showing toast message of the response
                     }
                 },
@@ -159,6 +160,13 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
             polylineOptions.add(point.get(i));
         }
         Polyline polyline = mMap.addPolyline(polylineOptions);
+    }
+
+    private void moveCamera() {
+        CameraPosition cameraPosition = new CameraPosition.Builder()
+                .target(point.get(0)).zoom(12).build();
+        mMap.animateCamera(CameraUpdateFactory
+                .newCameraPosition(cameraPosition));
     }
 
 }
