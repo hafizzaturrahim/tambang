@@ -20,7 +20,6 @@ import android.widget.Toast;
 
 import com.hafizzaturrahim.tambang.beranda.MapFragment;
 import com.hafizzaturrahim.tambang.geotag.ListGeotagFragment;
-import com.hafizzaturrahim.tambang.kml.KmlFragment;
 import com.hafizzaturrahim.tambang.tracking.ListTrackingFragment;
 
 public class MainActivity extends AppCompatActivity

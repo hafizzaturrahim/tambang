@@ -4,6 +4,7 @@ package com.hafizzaturrahim.tambang.geotag;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -41,6 +42,8 @@ public class ListGeotagFragment extends Fragment {
     ListView listGeotag;
     ArrayList<Geotag> geotagArrayList = new ArrayList<>();
 
+    FloatingActionButton fabCamera;
+
     public ListGeotagFragment() {
         // Required empty public constructor
     }
@@ -52,6 +55,15 @@ public class ListGeotagFragment extends Fragment {
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_list_geotag, container, false);
         listGeotag = (ListView) v.findViewById(R.id.list_Geotag);
+        fabCamera = (FloatingActionButton) v.findViewById(R.id.fabCamera);
+        fabCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(getActivity(), GeotagActivity.class);
+                startActivity(intent);
+            }
+        });
+
         getGeotag();
 
         listGeotag.setOnItemClickListener(new AdapterView.OnItemClickListener() {

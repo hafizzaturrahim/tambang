@@ -26,6 +26,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.view.animation.Animation;
+import android.widget.Button;
 import android.widget.Toast;
 
 import com.afollestad.materialdialogs.MaterialDialog;
@@ -52,6 +53,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
 import com.google.maps.android.kml.KmlLayer;
 import com.hafizzaturrahim.tambang.Config;
+import com.hafizzaturrahim.tambang.geotag.Geotag;
 import com.hafizzaturrahim.tambang.geotag.GeotagActivity;
 import com.hafizzaturrahim.tambang.R;
 import com.hafizzaturrahim.tambang.SessionManager;
@@ -84,11 +86,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     boolean isTracking = false;
     private static final String TAG = "MapFragment";
 
-    private FloatingActionButton fabCamera, fabStart, fabStop;
+    private Button btnStart, btnStop;
     ArrayList<LatLng> point = new ArrayList<>();
     ArrayList<LatLng> trackPoints = new ArrayList<>();
 
-    ArrayList<LatLng> geotagPoint = new ArrayList<>();
+    ArrayList<Geotag> geotagPoint = new ArrayList<>();
     Polyline trackLine;
     Marker trackMarker;
     PolylineOptions polyOptions;
@@ -113,10 +115,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         loading.setMessage("Mencari lokasi...");
         loading.show();
 
-        fabStart = (FloatingActionButton) v.findViewById(R.id.fabStart);
-        fabStart.hide();
-//        showFab(false);
-        fabStart.setOnClickListener(new View.OnClickListener() {
+        btnStart = (Button) v.findViewById(R.id.btn_startTrack);
+        btnStop = (Button) v.findViewById(R.id.btn_stopTrack);
+        
+
+//        btnStart.hide();
+//        btnStop.hide();
+        showFab(false);
+        btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
@@ -128,8 +134,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
                             @Override
                             public void onClick(DialogInterface dialog,
                                                 int which) {
+                                showFab(false);
+
                                 startTracking();
-                                fabStart.hide();
                                 dialog.dismiss();
                             }
                         });
@@ -151,9 +158,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
             }
         });
 
-        
-        fabStop = (FloatingActionButton) v.findViewById(R.id.fabGetLocation);
-        fabStop.setOnClickListener(new View.OnClickListener() {
+
+        btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 AlertDialog.Builder alert = new AlertDialog.Builder(getActivity());
@@ -184,16 +190,6 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
             }
         });
 
-        fabCamera = (FloatingActionButton) v.findViewById(R.id.fabCamera);
-        fabCamera.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Intent intent = new Intent(getActivity(), GeotagActivity.class);
-                startActivity(intent);
-            }
-        });
-
-
         //initialize location manager
         lm = (LocationManager) getActivity().getSystemService(Context.LOCATION_SERVICE);
 
@@ -223,14 +219,14 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
     private void animate() {
         FastOutSlowInInterpolator fastOutSlowInInterpolator = new FastOutSlowInInterpolator();
-        fabStart.clearAnimation();
-        if (fabStart.getVisibility() == View.GONE) {
-            fabStart.setVisibility(View.VISIBLE);
+        btnStart.clearAnimation();
+        if (btnStart.getVisibility() == View.GONE) {
+            btnStart.setVisibility(View.VISIBLE);
         } else {
-            fabStart.setVisibility(View.GONE);
+            btnStart.setVisibility(View.GONE);
         }
         Animation anim = android.view.animation.AnimationUtils.loadAnimation(
-                fabStart.getContext(), R.anim.design_fab_in);
+                btnStart.getContext(), R.anim.design_fab_in);
         anim.setDuration(1500);
         anim.setInterpolator(fastOutSlowInInterpolator);
         anim.setAnimationListener(new Animation.AnimationListener() {
@@ -249,7 +245,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
             }
         });
-        fabStart.startAnimation(anim);
+        btnStart.startAnimation(anim);
     }
 
     private void initializeMap() {
@@ -262,25 +258,25 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
                 .target(currentLocation).zoom(12).build();
         googleMap.animateCamera(CameraUpdateFactory
                 .newCameraPosition(cameraPosition));
-        fabStart.show();
-//        showFab(true);
+//        btnStart.show();
+        showFab(true);
     }
-    
-    private void showFab(boolean isShow){
-        if (isShow){
-            fabStart.show();
-        }else {
-            fabStart.hide();
+
+    private void showFab(boolean isShow) {
+        if (isShow) {
+            btnStart.setVisibility(View.VISIBLE);
+        } else {
+            btnStart.setVisibility(View.GONE);
         }
-        
-        if (fabStart.isShown()){
-            fabStop.hide();
-        }else{
-            fabStop.show();
+
+        if (btnStart.isShown()) {
+            btnStop.setVisibility(View.GONE);
+        } else {
+            btnStop.setVisibility(View.VISIBLE);
         }
     }
 
-    private void loadKml(){
+    private void loadKml() {
         KmlLayer layerArea;
         KmlLayer layerLine;
         try {
@@ -319,6 +315,20 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     @Override
     public void onMapReady(GoogleMap googleMap) {
         this.googleMap = googleMap;
+        if (ActivityCompat.checkSelfPermission(getActivity(),
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+                ActivityCompat.checkSelfPermission(getActivity(),
+                        Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            // TODO: Consider calling
+            //    ActivityCompat#requestPermissions
+            // here to request the missing permissions, and then overriding
+            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
+            //                                          int[] grantResults)
+            // to handle the case where the user grants the permission. See the documentation
+            // for ActivityCompat#requestPermissions for more details.
+            return;
+        }
+        googleMap.setMyLocationEnabled(true);
         mMapView.onResume();
 //        Toast.makeText(getActivity(), "Mohon tunggu", Toast.LENGTH_SHORT).show();
 
@@ -526,10 +536,19 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
                     JSONObject polyObj = dataAr.getJSONObject(i);
 
                     //read from json result
-                    float lat = Float.parseFloat(polyObj.getString("lat"));
-                    float lng = Float.parseFloat(polyObj.getString("lng"));
+                    Double lat = polyObj.getDouble("lat");
+                    Double lng = polyObj.getDouble("lng");
                     title = polyObj.getString("nama");
+                    String id_marker = polyObj.getString("id_marker");
+
+                    Geotag geotag = new Geotag();
+                    geotag.setId_marker(id_marker);
+                    geotag.setLat(lat);
+                    geotag.setLng(lng);
+                    geotag.setNama(title);
+
                     LatLng position = new LatLng(lat,lng);
+                    geotagPoint.add(geotag);
                     addMarkerGeotag(title,position);
                 }
 //                Log.v("jumlah track", String.valueOf(jumlahTracking));
@@ -555,6 +574,12 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
 //        .snippet("Thinking of finding some thing...")
 
+        googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
+            @Override
+            public boolean onMarkerClick(Marker marker) {
+                return false;
+            }
+        });
 
         trackMarker = googleMap.addMarker(options);
 
@@ -605,6 +630,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
         isTracking = false;
         giveTitleTrackingDialog();
+        showFab(true);
 //        sendPolyLine();
 //        createJSONArray();
     }
