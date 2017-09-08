@@ -133,7 +133,7 @@ public class ListGeotagFragment extends Fragment {
                     String nama = jsonObject.getString("nama");
                     String id_marker = jsonObject.getString("id_marker");
                     String id_user = jsonObject.getString("id_user");
-                    String image = jsonObject.getString("image");
+                    String image = jsonObject.getString("url");
                     Double lat = jsonObject.getDouble("lat");
                     Double lng = jsonObject.getDouble("lng");
 

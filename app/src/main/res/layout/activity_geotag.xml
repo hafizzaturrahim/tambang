@@ -9,11 +9,11 @@
     >
 
 
-    <!--<Button-->
-        <!--android:id="@+id/buttonChoose"-->
-        <!--android:layout_width="match_parent"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:text="Choose Image" />-->
+    <Button
+        android:id="@+id/buttonChoose"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Choose Image" />
 
     <Button
         android:id="@+id/takeImage"
@@ -31,7 +31,7 @@
 
 
     <EditText
-        android:id="@+id/editText"
+        android:id="@+id/edtTitleGeotag"
         android:hint="Judul gambar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />

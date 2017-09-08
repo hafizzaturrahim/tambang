@@ -57,8 +57,8 @@ public class GeotagAdapter extends ArrayAdapter<Geotag> {
             @Override
             public void onClick(View v) {
                 AlertDialog.Builder alert = new AlertDialog.Builder(context);
-                alert.setTitle("Menghapus Tracking");
-                alert.setMessage("Apakah anda akan menghapus tracking (tracking yang dihapus tidak dapat dibatalkan)?");
+                alert.setTitle("Menghapus Geotag");
+                alert.setMessage("Apakah anda akan menghapus geotag (geotag yang dihapus tidak dapat dibatalkan)?");
                 alert.setPositiveButton("Ya",
                         new DialogInterface.OnClickListener() {
                             @Override

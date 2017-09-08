@@ -18,6 +18,7 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.hafizzaturrahim.tambang.Config;
 import com.hafizzaturrahim.tambang.R;
 import com.squareup.picasso.Picasso;
 
@@ -27,6 +28,8 @@ public class DetailGeotagActivity extends AppCompatActivity implements OnMapRead
     MapView mMapView;
     Geotag geotag;
     ImageView imgGeotag;
+    LatLng location;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -38,11 +41,19 @@ public class DetailGeotagActivity extends AppCompatActivity implements OnMapRead
 
         imgGeotag = (ImageView) findViewById(R.id.img_geotag);
         TextView txtTitle = (TextView) findViewById(R.id.txt_nama);
+        TextView txtCoordinate = (TextView) findViewById(R.id.txt_latlng);
 
         geotag = getIntent().getParcelableExtra("geo");
 
+        Bundle bundle = getIntent().getParcelableExtra("bundle");
+        location = bundle.getParcelable("position");
+
+        geotag.setLat(location.latitude);
+        geotag.setLng(location.longitude);
+
         txtTitle.setText(geotag.getNama());
-        loadImage(geotag.getNama());
+        txtCoordinate.setText("("+geotag.getLat()+", "+geotag.getLng()+")");
+        loadImage(geotag.getImage());
 
         mMapView = (MapView) findViewById(R.id.mapGeotag);
         mMapView.onCreate(savedInstanceState);
@@ -52,7 +63,7 @@ public class DetailGeotagActivity extends AppCompatActivity implements OnMapRead
 
     private void loadImage(String picName){
         Picasso.with(this)
-                .load("https://1yjmqg26uh9k15zq0o1pderc-wpengine.netdna-ssl.com/wp-content/uploads/2017/01/android-image.png")
+                .load(Config.base_url+"/"+picName)
                 .placeholder(R.drawable.placeholder) // optional
                 .into(imgGeotag);
     }
@@ -78,8 +89,7 @@ public class DetailGeotagActivity extends AppCompatActivity implements OnMapRead
     }
 
     private void moveCamera(){
-        Bundle bundle = getIntent().getParcelableExtra("bundle");
-        LatLng location = bundle.getParcelable("position");
+
         mMap.addMarker(new MarkerOptions().position(location).title(geotag.getNama()));
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(location).zoom(14).build();

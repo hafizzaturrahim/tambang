@@ -33,6 +33,7 @@ import com.android.volley.Response;
 import com.android.volley.VolleyError;
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import com.hafizzaturrahim.tambang.Config;
 import com.hafizzaturrahim.tambang.R;
 import com.hafizzaturrahim.tambang.SessionManager;
 
@@ -67,7 +68,7 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
     private int PICK_IMAGE_REQUEST = 2;
     static final int REQUEST_IMAGE_CAPTURE = 1;
 
-    String lat,lng;
+    String lat, lng;
 
     // directory name to store captured images and videos
     private static final String IMAGE_DIRECTORY_NAME = "Tambang";
@@ -80,13 +81,15 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_geotag);
 
+        buttonChoose = (Button) findViewById(R.id.buttonChoose);
         buttonUpload = (Button) findViewById(R.id.buttonUpload);
         buttontakeImage = (Button) findViewById(R.id.takeImage);
-        edttitleGeotag = (EditText) findViewById(R.id.editText);
+        edttitleGeotag = (EditText) findViewById(R.id.edtTitleGeotag);
 
         imageView = (ImageView) findViewById(R.id.imgPhotoResult);
 
 //        t = (TextView) findViewById(R.id.lat);
+        buttonChoose.setOnClickListener(this);
         buttonUpload.setOnClickListener(this);
         buttontakeImage.setOnClickListener(this);
 
@@ -295,15 +298,15 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
         }
 
         SessionManager sessionManager = new SessionManager(this);
-        if(Latitude != 0 ){
+        if (Latitude != null) {
             lat = String.valueOf(Latitude);
-        }else{
+        } else {
             lat = String.valueOf(sessionManager.getLatitude());
         }
 
-        if (Longitude != 0){
+        if (Longitude != null) {
             lng = String.valueOf(Longitude);
-        }else{
+        } else {
             lng = String.valueOf(sessionManager.getLongitude());
         }
 
@@ -333,7 +336,6 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
         result = new Float(FloatD + (FloatM / 60) + (FloatS / 3600));
 
         return result;
-
 
     }
 
@@ -392,15 +394,19 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
     }
 
     private void uploadImage() {
-        String UPLOAD_URL = "http://dolanbatu.com/side/upload.php";
+//        String UPLOAD_URL = Config.base_url+ "/upload.php";
+        String UPLOAD_URL = Config.base_url+ "/insertGeotag.php";
         //Showing the progress dialog
-        final ProgressDialog loading = ProgressDialog.show(this, "Uploading...", "Please wait...", false, false);
+        final ProgressDialog loading = new ProgressDialog(this);
+        loading.setMessage("Uploading...");
+        loading.show();
         StringRequest stringRequest = new StringRequest(Request.Method.POST, UPLOAD_URL,
                 new Response.Listener<String>() {
                     @Override
                     public void onResponse(String s) {
                         //Disimissing the progress dialog
                         loading.dismiss();
+                        Log.v("respon_upload", s);
                         //Showing toast message of the response
                         Toast.makeText(GeotagActivity.this, s, Toast.LENGTH_LONG).show();
                     }
@@ -410,9 +416,9 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
                     public void onErrorResponse(VolleyError volleyError) {
                         //Dismissing the progress dialog
                         loading.dismiss();
-
+                        Toast.makeText(GeotagActivity.this, "Terjadi kesalahan dalam mengambil data", Toast.LENGTH_LONG).show();
                         //Showing toast
-                        Toast.makeText(GeotagActivity.this, volleyError.getMessage().toString(), Toast.LENGTH_LONG).show();
+//                        Toast.makeText(GeotagActivity.this, volleyError.getMessage().toString(), Toast.LENGTH_LONG).show();
                     }
                 }) {
             @Override
@@ -428,9 +434,11 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
 
                 //Adding parameters
 //                params.put(KEY_IMAGE, image);
-                params.put("nama", name);
+                params.put("name", name);
                 params.put("lat", lat);
-                params.put("lng",lng);
+                params.put("lng", lng);
+                params.put("id_user","1");
+                params.put("image",image);
 
                 //returning parameters
                 return params;
@@ -447,14 +455,13 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     public void onClick(View v) {
         if (v == buttonChoose) {
-//            showFileChooser();
+            showFileChooser();
         } else if (v == buttonUpload) {
             if (imageView.getDrawable() == null) {
                 Toast.makeText(this, "Foto tidak ditemukan", Toast.LENGTH_SHORT).show();
-            }else if(edttitleGeotag.getText().toString().isEmpty()){
+            } else if (edttitleGeotag.getText().toString().isEmpty()) {
                 edttitleGeotag.setError("Judul harus diisi");
-            }
-            else {
+            } else {
                 uploadImage();
             }
         } else if (v == buttontakeImage) {
