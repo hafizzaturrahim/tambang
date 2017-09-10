@@ -23,6 +23,7 @@ import com.android.volley.toolbox.Volley;
 import com.google.android.gms.maps.model.LatLng;
 import com.hafizzaturrahim.tambang.Config;
 import com.hafizzaturrahim.tambang.R;
+import com.hafizzaturrahim.tambang.SessionManager;
 import com.hafizzaturrahim.tambang.tracking.MapsActivity;
 import com.hafizzaturrahim.tambang.tracking.Tracking;
 import com.hafizzaturrahim.tambang.tracking.TrackingAdapter;
@@ -69,24 +70,29 @@ public class ListGeotagFragment extends Fragment {
         listGeotag.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                Intent intent = new Intent(getActivity(), DetailGeotagActivity.class);
-                Geotag geotag = geotagArrayList.get(position);
-                Log.v("geo lat lg", String.valueOf(geotag.getLat()));
-                Log.v("geo lng lg", String.valueOf(geotag.getLng()));
-                LatLng pos = new LatLng(geotag.getLat(),geotag.getLng());
-                Bundle args = new Bundle();
-                args.putParcelable("position", pos);
-
-                intent.putExtra("geo",geotag);
-                intent.putExtra("bundle",args);
-                getActivity().startActivity(intent);
+                newActivity(position);
             }
         });
         return v;
     }
 
+    private void newActivity(int position){
+        Intent intent = new Intent(getActivity(), DetailGeotagActivity.class);
+        Geotag geotag = geotagArrayList.get(position);
+        Log.v("geo lat lg", String.valueOf(geotag.getLat()));
+        Log.v("geo lng lg", String.valueOf(geotag.getLng()));
+        LatLng pos = new LatLng(geotag.getLat(),geotag.getLng());
+        Bundle args = new Bundle();
+        args.putParcelable("position", pos);
+
+        intent.putExtra("geo",geotag);
+        intent.putExtra("bundle",args);
+        getActivity().startActivity(intent);
+    }
+
     private void getGeotag() {
-        String URL = Config.base_url + "/selectGeotag.php";
+        SessionManager sessionManager = new SessionManager(getActivity());
+        String URL = Config.base_url + "/selectGeotag.php?id_user=" +sessionManager.getIdLogin();
         //Showing the progress dialog
         final ProgressDialog loading = new ProgressDialog(getActivity());
         loading.setMessage("Mengambil data...");

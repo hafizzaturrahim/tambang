@@ -62,6 +62,7 @@ public class DetailGeotagActivity extends AppCompatActivity implements OnMapRead
     }
 
     private void loadImage(String picName){
+        Log.v("urlPic",Config.base_url+"/"+picName);
         Picasso.with(this)
                 .load(Config.base_url+"/"+picName)
                 .placeholder(R.drawable.placeholder) // optional

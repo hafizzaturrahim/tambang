@@ -21,6 +21,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.hafizzaturrahim.tambang.Config;
 import com.hafizzaturrahim.tambang.R;
+import com.hafizzaturrahim.tambang.SessionManager;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -63,7 +64,8 @@ public class ListTrackingFragment extends Fragment {
     }
 
     private void getTracking() {
-        String URL = Config.base_url + "/selectTracking.php";
+        SessionManager sessionManager = new SessionManager(getActivity());
+        String URL = Config.base_url + "/selectTracking.php?id_user=" +sessionManager.getIdLogin();
         //Showing the progress dialog
         final ProgressDialog loading = new ProgressDialog(getActivity());
         loading.setMessage("Mengambil data...");

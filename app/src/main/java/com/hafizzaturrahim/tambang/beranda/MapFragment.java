@@ -53,6 +53,7 @@ import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.gson.Gson;
 import com.google.maps.android.kml.KmlLayer;
 import com.hafizzaturrahim.tambang.Config;
+import com.hafizzaturrahim.tambang.geotag.DetailGeotagActivity;
 import com.hafizzaturrahim.tambang.geotag.Geotag;
 import com.hafizzaturrahim.tambang.geotag.GeotagActivity;
 import com.hafizzaturrahim.tambang.R;
@@ -83,19 +84,21 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
     LatLng currentLocation;
 
-    boolean isTracking = false;
     private static final String TAG = "MapFragment";
-
     private Button btnStart, btnStop;
-    ArrayList<LatLng> point = new ArrayList<>();
-    ArrayList<LatLng> trackPoints = new ArrayList<>();
 
-    ArrayList<Geotag> geotagPoint = new ArrayList<>();
+    ProgressDialog loading;
+    ArrayList<LatLng> point = new ArrayList<>();
+
+    ArrayList<LatLng> trackPoints = new ArrayList<>();
     Polyline trackLine;
     Marker trackMarker;
     PolylineOptions polyOptions;
+    boolean isTracking = false;
 
-    ProgressDialog loading;
+    ArrayList<Geotag> geotagPoint = new ArrayList<>();
+    String[] geoMarkerPosition;
+    SessionManager sessionManager;
 
     public MapFragment() {
         // Required empty public constructor
@@ -107,6 +110,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         // Inflate the layout for this fragment
         View v = inflater.inflate(R.layout.fragment_home, container, false);
 
+        sessionManager = new SessionManager(getActivity());
         //initialize map
         mMapView = (MapView) v.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
@@ -117,7 +121,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
         btnStart = (Button) v.findViewById(R.id.btn_startTrack);
         btnStop = (Button) v.findViewById(R.id.btn_stopTrack);
-        
+
 
 //        btnStart.hide();
 //        btnStop.hide();
@@ -214,6 +218,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         lm.requestLocationUpdates(LocationManager.NETWORK_PROVIDER, 0, 0, this);
         lm.requestLocationUpdates(LocationManager.GPS_PROVIDER, 0, 0, this);
 
+
+
         return v;
     }
 
@@ -259,7 +265,36 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         googleMap.animateCamera(CameraUpdateFactory
                 .newCameraPosition(cameraPosition));
 //        btnStart.show();
+
+        googleMap.setOnInfoWindowClickListener(new GoogleMap.OnInfoWindowClickListener() {
+            @Override
+            public void onInfoWindowClick(Marker marker) {
+                for(int i=0;i < geoMarkerPosition.length;i++){
+                    if (marker.getId().equals(geoMarkerPosition[i])){
+//                        String tes = geotagPoint.get(i).getNama();
+//                        Toast.makeText(getActivity(), tes, Toast.LENGTH_SHORT).show();
+                        newActivity(i);
+                        break;
+                    }
+                }
+
+            }
+        });
         showFab(true);
+    }
+
+    private void newActivity(int position){
+        Intent intent = new Intent(getActivity(), DetailGeotagActivity.class);
+        Geotag geotag = geotagPoint.get(position);
+        Log.v("geo lat lg", String.valueOf(geotag.getLat()));
+        Log.v("geo lng lg", String.valueOf(geotag.getLng()));
+        LatLng pos = new LatLng(geotag.getLat(),geotag.getLng());
+        Bundle args = new Bundle();
+        args.putParcelable("position", pos);
+
+        intent.putExtra("geo",geotag);
+        intent.putExtra("bundle",args);
+        getActivity().startActivity(intent);
     }
 
     private void showFab(boolean isShow) {
@@ -348,7 +383,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         //mengetahui lokasi saat ini
         if (counter == 0) {
             counter++;
-            SessionManager sessionManager = new SessionManager(getActivity());
+
             sessionManager.setLatitude((float) location.getLatitude());
             sessionManager.setLongitude((float) location.getLongitude());
             initializeMap();
@@ -373,7 +408,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
     }
 
     private void getPolyLine() {
-        String URL = Config.base_url + "/selectPolyLine.php";
+        String URL = Config.base_url + "/selectPolyLine.php?id_user=" + sessionManager.getIdLogin();
         //Showing the progress dialog
 
         loading.setMessage("Mengambil data...");
@@ -489,8 +524,8 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 //        line = googleMap.addPolyline(options);
 //    }
 
-    private void getGeotag(){
-        String URL =  Config.base_url + "/selectGeotag.php";
+    private void getGeotag() {
+        String URL = Config.base_url + "/selectGeotag.php?id_user=" + sessionManager.getIdLogin();
         //Showing the progress dialog
 
         Log.v("URL geotag", URL);
@@ -524,7 +559,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         requestQueue.add(stringRequest);
     }
 
-    private void parseJSONGeotag(String result){
+    private void parseJSONGeotag(String result) {
         if (!result.contains("gagal")) {
 //            Log.v("hasil a", "berhasil");
             String title = null;
@@ -532,24 +567,27 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
                 JSONObject data = new JSONObject(result);
                 JSONArray dataAr = data.getJSONArray("data");
 
+                geoMarkerPosition = new String[dataAr.length()];
                 for (int i = 0; i < dataAr.length(); i++) {
-                    JSONObject polyObj = dataAr.getJSONObject(i);
+                    JSONObject geoObj = dataAr.getJSONObject(i);
 
                     //read from json result
-                    Double lat = polyObj.getDouble("lat");
-                    Double lng = polyObj.getDouble("lng");
-                    title = polyObj.getString("nama");
-                    String id_marker = polyObj.getString("id_marker");
+                    Double lat = geoObj.getDouble("lat");
+                    Double lng = geoObj.getDouble("lng");
+                    title = geoObj.getString("nama");
+                    String id_marker = geoObj.getString("id_marker");
+                    String image = geoObj.getString("url");
 
                     Geotag geotag = new Geotag();
                     geotag.setId_marker(id_marker);
                     geotag.setLat(lat);
                     geotag.setLng(lng);
                     geotag.setNama(title);
+                    geotag.setImage(image);
 
-                    LatLng position = new LatLng(lat,lng);
+                    LatLng position = new LatLng(lat, lng);
                     geotagPoint.add(geotag);
-                    addMarkerGeotag(title,position);
+                    addMarkerGeotag(title, position,i);
                 }
 //                Log.v("jumlah track", String.valueOf(jumlahTracking));
 
@@ -560,11 +598,11 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         }
     }
 
-    private void addMarkerGeotag(String title,LatLng position) {
+    private void addMarkerGeotag(String title, LatLng position, final int i) {
         int height = 85;
         int width = 55;
-        BitmapDrawable bitmapdraw=(BitmapDrawable)getResources().getDrawable(R.drawable.ic_marker);
-        Bitmap b=bitmapdraw.getBitmap();
+        BitmapDrawable bitmapdraw = (BitmapDrawable) getResources().getDrawable(R.drawable.ic_marker);
+        Bitmap b = bitmapdraw.getBitmap();
         Bitmap icon = Bitmap.createScaledBitmap(b, width, height, false);
 
         MarkerOptions options = new MarkerOptions().position(position)
@@ -572,18 +610,9 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
                 .snippet("geotag")
                 .icon(BitmapDescriptorFactory.fromBitmap(icon));
 
-//        .snippet("Thinking of finding some thing...")
 
-        googleMap.setOnMarkerClickListener(new GoogleMap.OnMarkerClickListener() {
-            @Override
-            public boolean onMarkerClick(Marker marker) {
-                return false;
-            }
-        });
-
-        trackMarker = googleMap.addMarker(options);
-
-        trackMarker.setTitle(title);
+        Marker geoMarker = googleMap.addMarker(options);
+        geoMarkerPosition[i] = geoMarker.getId();
 
         Log.d(TAG, "Marker geotag added.............................");
 //        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 13));
@@ -635,7 +664,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 //        createJSONArray();
     }
 
-    private void giveTitleTrackingDialog(){
+    private void giveTitleTrackingDialog() {
         new MaterialDialog.Builder(getActivity())
                 .title("Tracking Baru")
                 .content("Berikan nama untuk tracking yang baru dibuat")
@@ -707,8 +736,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
                         //Showing toast
 //                        Toast.makeText(getActivity(), volleyError.getMessage().toString(), Toast.LENGTH_LONG).show();
                     }
-                })
-        {
+                }) {
             @Override
             protected Map<String, String> getParams() {
                 Map<String, String> params = new HashMap<>();

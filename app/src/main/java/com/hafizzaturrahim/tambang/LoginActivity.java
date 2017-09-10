@@ -80,6 +80,7 @@ public class LoginActivity extends AppCompatActivity {
     private void getDataUser(){
         isSuccess = true;
         id = "1";
+        Toast.makeText(this, "login berhasil", Toast.LENGTH_SHORT).show();
         newActivity();
     }
 //    private void getDataUser() {
