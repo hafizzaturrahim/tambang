@@ -63,16 +63,6 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         return super.onOptionsItemSelected(item);
     }
 
-
-    /**
-     * Manipulates the map once available.
-     * This callback is triggered when the map is ready to be used.
-     * This is where we can add markers or lines, add listeners or move the camera. In this case,
-     * we just add a marker near Sydney, Australia.
-     * If Google Play services is not installed on the device, the user will be prompted to install
-     * it inside the SupportMapFragment. This method will only be triggered once the user has
-     * installed Google Play services and returned to the app.
-     */
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
@@ -84,6 +74,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     }
 
+    //meminta data polyline ke database
     private void getPolyLine(String id_tracking) {
         String URL = Config.base_url + "/selectPolyLine.php?id_tracking=" + id_tracking;
         //Showing the progress dialog
@@ -123,6 +114,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         requestQueue.add(stringRequest);
     }
 
+    //memparsing hasil tracking
     private void parseJSON(String result) {
         if (!result.contains("gagal")) {
 //            Log.v("hasil a", "berhasil");
@@ -150,6 +142,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
     }
 
+    //membuat polyline untuk tiap tracking
     private void createPolyLine() {
         PolylineOptions polylineOptions = new PolylineOptions()
                 .clickable(true)
@@ -161,6 +154,7 @@ public class MapsActivity extends AppCompatActivity implements OnMapReadyCallbac
         }
         Polyline polyline = mMap.addPolyline(polylineOptions);
     }
+
 
     private void moveCamera() {
         CameraPosition cameraPosition = new CameraPosition.Builder()

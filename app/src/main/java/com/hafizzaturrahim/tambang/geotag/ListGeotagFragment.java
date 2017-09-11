@@ -50,6 +50,7 @@ public class ListGeotagFragment extends Fragment {
     }
 
 
+    //inisiasi layout
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -76,6 +77,7 @@ public class ListGeotagFragment extends Fragment {
         return v;
     }
 
+    //memanggil activity baru untuk detail geotag
     private void newActivity(int position){
         Intent intent = new Intent(getActivity(), DetailGeotagActivity.class);
         Geotag geotag = geotagArrayList.get(position);
@@ -90,6 +92,8 @@ public class ListGeotagFragment extends Fragment {
         getActivity().startActivity(intent);
     }
 
+
+    //meminta data geotag dari database
     private void getGeotag() {
         SessionManager sessionManager = new SessionManager(getActivity());
         String URL = Config.base_url + "/selectGeotag.php?id_user=" +sessionManager.getIdLogin();
@@ -126,6 +130,7 @@ public class ListGeotagFragment extends Fragment {
         requestQueue.add(stringRequest);
     }
 
+    //memparsing hasil geotag
     private void parseJSON(String result) {
         if (!result.contains("gagal")) {
 //            Log.v("hasil a", "berhasil");
@@ -162,6 +167,7 @@ public class ListGeotagFragment extends Fragment {
         }
     }
 
+    //mengeset adapter untuk list hasil geotag
     private void setAdapter(){
         GeotagAdapter adapter = new GeotagAdapter(getActivity(),geotagArrayList);
         listGeotag.setAdapter(adapter);

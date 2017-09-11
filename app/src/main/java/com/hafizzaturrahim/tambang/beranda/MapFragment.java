@@ -111,7 +111,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         View v = inflater.inflate(R.layout.fragment_home, container, false);
 
         sessionManager = new SessionManager(getActivity());
-        //initialize map
+        //inisiasi ;ayout
         mMapView = (MapView) v.findViewById(R.id.mapView);
         mMapView.onCreate(savedInstanceState);
         mMapView.getMapAsync(this);
@@ -254,6 +254,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         btnStart.startAnimation(anim);
     }
 
+    //inisiasi map
     private void initializeMap() {
         loadKml();
         getPolyLine();
@@ -283,6 +284,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         showFab(true);
     }
 
+    //membuka aktivity baru untuk geotag
     private void newActivity(int position){
         Intent intent = new Intent(getActivity(), DetailGeotagActivity.class);
         Geotag geotag = geotagPoint.get(position);
@@ -297,6 +299,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         getActivity().startActivity(intent);
     }
 
+    //memunculkan/menyembunyikan tombol tracking
     private void showFab(boolean isShow) {
         if (isShow) {
             btnStart.setVisibility(View.VISIBLE);
@@ -311,6 +314,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         }
     }
 
+    //meload kml
     private void loadKml() {
         KmlLayer layerArea;
         KmlLayer layerLine;
@@ -354,36 +358,22 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
                 Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
                 ActivityCompat.checkSelfPermission(getActivity(),
                         Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
-            // TODO: Consider calling
-            //    ActivityCompat#requestPermissions
-            // here to request the missing permissions, and then overriding
-            //   public void onRequestPermissionsResult(int requestCode, String[] permissions,
-            //                                          int[] grantResults)
-            // to handle the case where the user grants the permission. See the documentation
-            // for ActivityCompat#requestPermissions for more details.
+
             return;
         }
         googleMap.setMyLocationEnabled(true);
         mMapView.onResume();
-//        Toast.makeText(getActivity(), "Mohon tunggu", Toast.LENGTH_SHORT).show();
-
-//        createPolygon();
-//        createPolyline();
-        // Add a marker in Sydney and move the camera
-//        LatLng sydney = new LatLng(-34, 151);
-
-
     }
 
+    //method yang diturunkan ketika posisi berubah
     @Override
     public void onLocationChanged(Location location) {
 //        Log.v("latitude", String.valueOf(location.getLatitude()));
         LatLng position = new LatLng(location.getLatitude(), location.getLongitude());
         currentLocation = position;
-        //mengetahui lokasi saat ini
+        //mengetahui lokasi saat ini menggunakan counter
         if (counter == 0) {
             counter++;
-
             sessionManager.setLatitude((float) location.getLatitude());
             sessionManager.setLongitude((float) location.getLongitude());
             initializeMap();
@@ -407,6 +397,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
     }
 
+    //meminta data polyline untuk tracking dari database untuk ditampilkan
     private void getPolyLine() {
         String URL = Config.base_url + "/selectPolyLine.php?id_user=" + sessionManager.getIdLogin();
         //Showing the progress dialog
@@ -443,6 +434,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         requestQueue.add(stringRequest);
     }
 
+    //memparsing hasil polyline untuk tracking
     private void parseJSONTracking(String result) {
         if (!result.contains("gagal")) {
 //            Log.v("hasil a", "berhasil");
@@ -491,6 +483,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         }
     }
 
+    //membuat polyline untuk tiap tracking
     private void createPolyLine() {
         Integer[] warna = new Integer[]{
                 Color.GREEN,
@@ -514,16 +507,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         point.clear();
     }
 
-
-//    private void createPolyLine() {
-//        Polyline line;
-//        PolylineOptions options = new PolylineOptions().width(5).color(Color.BLUE).geodesic(true);
-//        options.add(new LatLng(-7.95029578, 112.61739377),
-//                new LatLng(12.912006, 77.229738),
-//                new LatLng(12.572030, 77.999756));
-//        line = googleMap.addPolyline(options);
-//    }
-
+    //mengambil data geotag dari database
     private void getGeotag() {
         String URL = Config.base_url + "/selectGeotag.php?id_user=" + sessionManager.getIdLogin();
         //Showing the progress dialog
@@ -559,6 +543,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         requestQueue.add(stringRequest);
     }
 
+    //memparsing hasil geotag dari database
     private void parseJSONGeotag(String result) {
         if (!result.contains("gagal")) {
 //            Log.v("hasil a", "berhasil");
@@ -598,6 +583,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         }
     }
 
+    //menambah marker ke map untuk geotag
     private void addMarkerGeotag(String title, LatLng position, final int i) {
         int height = 85;
         int width = 55;
@@ -618,6 +604,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 //        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 13));
     }
 
+    //memulai tracking
     private void startTracking() {
         Toast.makeText(getActivity(), "Memulai tracking", Toast.LENGTH_SHORT).show();
         isTracking = true;
@@ -629,6 +616,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
     }
 
+    //menambah marker baru untuk tracking
     private void addMarker(String title) {
         MarkerOptions options = new MarkerOptions();
 
@@ -643,6 +631,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 //        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(currentLocation, 13));
     }
 
+    //menghentikan tracking
     private void stopTracking() {
         Polyline polyline = googleMap.addPolyline(polyOptions);
 
@@ -660,10 +649,10 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         isTracking = false;
         giveTitleTrackingDialog();
         showFab(true);
-//        sendPolyLine();
-//        createJSONArray();
+
     }
 
+    //memunculkan dialog untuk memberi nama tracking
     private void giveTitleTrackingDialog() {
         new MaterialDialog.Builder(getActivity())
                 .title("Tracking Baru")
@@ -704,6 +693,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
 
     }
 
+    //mengubah hasil tracking menjadi json
     private String createJSONArray() {
         String jsonResult = new Gson().toJson(trackPoints);
 
@@ -711,6 +701,7 @@ public class MapFragment extends Fragment implements OnMapReadyCallback, Locatio
         return jsonResult;
     }
 
+    //mengirim hasil tracking berupa json ke database
     private void sendPolyLine(final String titleTracking) {
         String URL = Config.base_url + "/sendPolyLine.php";
         //Showing the progress dialog

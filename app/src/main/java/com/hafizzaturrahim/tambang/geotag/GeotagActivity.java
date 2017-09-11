@@ -79,6 +79,7 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        //inisiasi layout
         setContentView(R.layout.activity_geotag);
 
         buttonChoose = (Button) findViewById(R.id.buttonChoose);
@@ -93,20 +94,8 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
         buttonUpload.setOnClickListener(this);
         buttontakeImage.setOnClickListener(this);
 
+        //meminta permission
         requestRuntimePermission();
-    }
-
-    private void dispatchTakePictureIntent() {
-        Intent takePictureIntent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
-        if (takePictureIntent.resolveActivity(getPackageManager()) != null) {
-            String fileName = "temp.jpg";
-            ContentValues values = new ContentValues();
-            values.put(MediaStore.Images.Media.TITLE, fileName);
-            mCapturedImageURI = getContentResolver().insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values);
-            takePictureIntent.putExtra(MediaStore.EXTRA_OUTPUT, mCapturedImageURI);
-            startActivityForResult(takePictureIntent, REQUEST_IMAGE_CAPTURE);
-        }
-
     }
 
     @Override
@@ -120,23 +109,31 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
         return super.onOptionsItemSelected(item);
     }
 
+
+    @Override
+    public void onClick(View v) {
+        if (v == buttonChoose) {
+            showFileChooser();
+        } else if (v == buttonUpload) {
+            if (imageView.getDrawable() == null) {
+                Toast.makeText(this, "Foto tidak ditemukan", Toast.LENGTH_SHORT).show();
+            } else if (edttitleGeotag.getText().toString().isEmpty()) {
+                edttitleGeotag.setError("Judul harus diisi");
+            } else {
+                uploadImage();
+            }
+        } else if (v == buttontakeImage) {
+//            dispatchTakePictureIntent();
+            captureImage();
+        }
+    }
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-//        if (requestCode == PICK_IMAGE_REQUEST && resultCode == RESULT_OK && data != null && data.getData() != null) {
-//            Uri filePath = data.getData();
-//            try {
-//                //Getting the Bitmap from Gallery
-//                bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), filePath);
-//                //Setting the Bitmap to ImageView
-//                imageView.setImageBitmap(bitmap);
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-
         if (requestCode == CAMERA_CAPTURE_IMAGE_REQUEST_CODE) {
+            //aktivitas jika menggunakan kamera
             if (resultCode == RESULT_OK) {
                 // successfully captured the image
                 // display it in image view
@@ -154,6 +151,7 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
                         .show();
             }
         } else {
+            //memunculkan gambar jika memilih mengambil gambar dari yang sudah ada
             if (resultCode == RESULT_OK) {
                 if (data == null) {
                     //Display an error
@@ -163,37 +161,12 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
                     fileUri = data.getData();
                     Log.v("path uri browse galery", fileUri.getPath());
                     previewImage();
-//                        InputStream inputStream = this.getContentResolver().openInputStream(data.getData());
-//                        bitmap = BitmapFactory.decodeStream(inputStream);
-//                        //scale bitmap to prevent too large resolution that cant rendered by OpenGL
-//                        int nh = (int) (bitmap.getHeight() * (512.0 / bitmap.getWidth()));
-//                        bitmap = Bitmap.createScaledBitmap(bitmap, 512, nh, true);
-
-//                        Picasso.with(GeotagActivity.this).load(String.valueOf(bitmap)).fit().centerCrop().into(imageView);
-//                        imageView.setImageBitmap(bitmap);
                 }
             }
         }
-
-//        if (resultCode == RESULT_OK) {
-//            if (requestCode == 100) {
-//                try {
-//                    bitmap = MediaStore.Images.Media.getBitmap(getContentResolver(), fileUri);
-//                } catch (FileNotFoundException e1) {
-//                    // TODO Auto-generated catch block
-//                    e1.printStackTrace();
-//                } catch (IOException e1) {
-//                    // TODO Auto-generated catch block
-//                    e1.printStackTrace();
-//                }
-//                imageView.setImageBitmap(bitmap);
-//                sendBroadcast(new Intent(
-//                        Intent.ACTION_MEDIA_MOUNTED,
-//                        Uri.parse("file://" + Environment.getExternalStorageDirectory())));
-//            }
-//        }
     }
 
+    //mengubah gambar menjadi string
     public String getStringImage(Bitmap bmp) {
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
         bmp.compress(Bitmap.CompressFormat.JPEG, 100, baos);
@@ -202,6 +175,7 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
         return encodedImage;
     }
 
+    //memunculkan intent untuk memilih file
     private void showFileChooser() {
         Intent intent = new Intent();
         intent.setType("image/*");
@@ -209,6 +183,7 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
         startActivityForResult(Intent.createChooser(intent, "Select Picture"), PICK_IMAGE_REQUEST);
     }
 
+    //mengambil gambar lewat kamera
     private void captureImage() {
         Intent intent = new Intent(MediaStore.ACTION_IMAGE_CAPTURE);
 
@@ -240,9 +215,7 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
         fileUri = savedInstanceState.getParcelable("file_uri");
     }
 
-    /*
-     * Display image from a path to ImageView
-     */
+    //menampilkan gambar
     private void previewImage() {
 
         try {
@@ -265,6 +238,7 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
+    //mendapatkan data latitude dan longitude dari data exif pada gambar
     private void getExifData() {
         ExifInterface exif = null;
         try {
@@ -298,6 +272,7 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
         }
 
         SessionManager sessionManager = new SessionManager(this);
+        //jika tidak dapat mendapat latitude, mengambil data latitude dari session, begitu juga dengan longitude
         if (Latitude != null) {
             lat = String.valueOf(Latitude);
         } else {
@@ -310,10 +285,11 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
             lng = String.valueOf(sessionManager.getLongitude());
         }
 
-//            Log.d("lat gbr",latitude);
-        Toast.makeText(this, "latitude " + String.valueOf(Latitude), Toast.LENGTH_SHORT).show();
+        Log.v("lat_exif",String.valueOf(Latitude) );
+//        Toast.makeText(this, "latitude " + String.valueOf(Latitude), Toast.LENGTH_SHORT).show();
     }
 
+    //mengolah data exif
     private Float convertToDegree(String stringDMS) {
         Float result;
         String[] DMS = stringDMS.split(",", 3);
@@ -348,9 +324,8 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
         return Uri.fromFile(getOutputMediaFile(type));
     }
 
-    /*
-     * returning image / video
-     */
+
+    //menyimpan hasil kamera ke file lokal
     private static File getOutputMediaFile(int type) {
 
         // External sdcard location
@@ -382,7 +357,7 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
         return mediaFile;
     }
 
-
+    //mengecek permission untuk mengakses storage
     private void requestRuntimePermission() {
         if (Build.VERSION.SDK_INT >= 23) {
             if (ContextCompat.checkSelfPermission(this, android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -393,6 +368,7 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
         }
     }
 
+    //mengirim data geotag ke database
     private void uploadImage() {
 //        String UPLOAD_URL = Config.base_url+ "/upload.php";
         String UPLOAD_URL = Config.base_url+ "/insertGeotag.php";
@@ -452,22 +428,6 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
         requestQueue.add(stringRequest);
     }
 
-    @Override
-    public void onClick(View v) {
-        if (v == buttonChoose) {
-            showFileChooser();
-        } else if (v == buttonUpload) {
-            if (imageView.getDrawable() == null) {
-                Toast.makeText(this, "Foto tidak ditemukan", Toast.LENGTH_SHORT).show();
-            } else if (edttitleGeotag.getText().toString().isEmpty()) {
-                edttitleGeotag.setError("Judul harus diisi");
-            } else {
-                uploadImage();
-            }
-        } else if (v == buttontakeImage) {
-//            dispatchTakePictureIntent();
-            captureImage();
-        }
-    }
+
 
 }

@@ -33,6 +33,7 @@ public class GeotagAdapter extends ArrayAdapter<Geotag> {
     private Context context;
     private ArrayList<Geotag> geotags = new ArrayList<>();
 
+    //inisiasi konstruktor
     public GeotagAdapter(Context context, ArrayList<Geotag> geotags) {
         super(context, R.layout.item_tracking,geotags);
         this.context = context;
@@ -53,6 +54,7 @@ public class GeotagAdapter extends ArrayAdapter<Geotag> {
 
         Button deleteBtn = (Button) v.findViewById(R.id.btn_delete);
 
+        //aksi untuk menghapus geotag
         deleteBtn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -93,6 +95,7 @@ public class GeotagAdapter extends ArrayAdapter<Geotag> {
         return v;
     }
 
+    //menghapus geotag di database
     private void deleteGeotag(String id){
         String URL = Config.base_url + "/deleteGeotag.php?id=" +id;
         //Showing the progress dialog
@@ -126,6 +129,7 @@ public class GeotagAdapter extends ArrayAdapter<Geotag> {
         requestQueue.add(stringRequest);
     }
 
+    //menghapus geotag dari list
     private void removeFromList(int position){
         geotags.remove(geotags.get(position));
     }

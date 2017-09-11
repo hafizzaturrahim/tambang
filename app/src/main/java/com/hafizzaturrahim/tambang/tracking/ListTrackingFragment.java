@@ -63,6 +63,7 @@ public class ListTrackingFragment extends Fragment {
         return v;
     }
 
+    //meminta data tracking ke database
     private void getTracking() {
         SessionManager sessionManager = new SessionManager(getActivity());
         String URL = Config.base_url + "/selectTracking.php?id_user=" +sessionManager.getIdLogin();
@@ -99,6 +100,7 @@ public class ListTrackingFragment extends Fragment {
         requestQueue.add(stringRequest);
     }
 
+    //memparsing hasil data tracking
     private void parseJSON(String result) {
         if (!result.contains("gagal")) {
 //            Log.v("hasil a", "berhasil");
@@ -128,6 +130,7 @@ public class ListTrackingFragment extends Fragment {
         }
     }
 
+    //mengeset adapter ke dalam list tracking
     private void setAdapter(){
         TrackingAdapter adapter = new TrackingAdapter(getActivity(),trackingArrayList);
         if(lvTracking.getAdapter() == null){ //Adapter not set yet.

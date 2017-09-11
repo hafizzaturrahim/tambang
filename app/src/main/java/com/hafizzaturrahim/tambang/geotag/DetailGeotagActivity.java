@@ -35,6 +35,7 @@ public class DetailGeotagActivity extends AppCompatActivity implements OnMapRead
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_detail_geotag);
 
+        //mengeset actionbar
         getSupportActionBar().setHomeButtonEnabled(true);
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setTitle("Detail Geotag");
@@ -43,6 +44,7 @@ public class DetailGeotagActivity extends AppCompatActivity implements OnMapRead
         TextView txtTitle = (TextView) findViewById(R.id.txt_nama);
         TextView txtCoordinate = (TextView) findViewById(R.id.txt_latlng);
 
+        //mengambil data yang dikirimkan lewat intent
         geotag = getIntent().getParcelableExtra("geo");
 
         Bundle bundle = getIntent().getParcelableExtra("bundle");
@@ -61,6 +63,7 @@ public class DetailGeotagActivity extends AppCompatActivity implements OnMapRead
 
     }
 
+    //mengambil gambar dan mengesetnya
     private void loadImage(String picName){
         Log.v("urlPic",Config.base_url+"/"+picName);
         Picasso.with(this)
@@ -90,7 +93,6 @@ public class DetailGeotagActivity extends AppCompatActivity implements OnMapRead
     }
 
     private void moveCamera(){
-
         mMap.addMarker(new MarkerOptions().position(location).title(geotag.getNama()));
         CameraPosition cameraPosition = new CameraPosition.Builder()
                 .target(location).zoom(14).build();
