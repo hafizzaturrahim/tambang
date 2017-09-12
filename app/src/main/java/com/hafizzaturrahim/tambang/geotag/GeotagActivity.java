@@ -56,11 +56,11 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
     private ImageView imageView;
 
     private EditText edttitleGeotag;
+    private EditText edtDescGeotag;
 
     private Uri mCapturedImageURI;
     private Bitmap bitmap;
 
-    private String mCurrentPhotoPath;
     // Activity request codes
     private static final int CAMERA_CAPTURE_IMAGE_REQUEST_CODE = 100;
     public static final int MEDIA_TYPE_IMAGE = 1;
@@ -86,6 +86,7 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
         buttonUpload = (Button) findViewById(R.id.buttonUpload);
         buttontakeImage = (Button) findViewById(R.id.takeImage);
         edttitleGeotag = (EditText) findViewById(R.id.edtTitleGeotag);
+        edtDescGeotag = (EditText) findViewById(R.id.edtDescGeotag);
 
         imageView = (ImageView) findViewById(R.id.imgPhotoResult);
 
@@ -93,6 +94,11 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
         buttonChoose.setOnClickListener(this);
         buttonUpload.setOnClickListener(this);
         buttontakeImage.setOnClickListener(this);
+
+        //mengeset actionbar
+        getSupportActionBar().setHomeButtonEnabled(true);
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setTitle("Upload Geotag Baru");
 
         //meminta permission
         requestRuntimePermission();
@@ -382,15 +388,17 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
                     public void onResponse(String s) {
                         //Disimissing the progress dialog
                         loading.dismiss();
-                        Log.v("respon_upload", s);
+                        Log.v("upload", "isine " +s);
                         //Showing toast message of the response
                         Toast.makeText(GeotagActivity.this, s, Toast.LENGTH_LONG).show();
+                        finish();
                     }
                 },
                 new Response.ErrorListener() {
                     @Override
                     public void onErrorResponse(VolleyError volleyError) {
                         //Dismissing the progress dialog
+                        Log.v("error_upload",volleyError.getMessage());
                         loading.dismiss();
                         Toast.makeText(GeotagActivity.this, "Terjadi kesalahan dalam mengambil data", Toast.LENGTH_LONG).show();
                         //Showing toast
@@ -405,6 +413,7 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
                 //Getting Image Name
                 String name = edttitleGeotag.getText().toString().trim();
 
+                String deskripsi = edtDescGeotag.getText().toString().trim();
                 //Creating parameters
                 Map<String, String> params = new Hashtable<>();
 
@@ -415,6 +424,7 @@ public class GeotagActivity extends AppCompatActivity implements View.OnClickLis
                 params.put("lng", lng);
                 params.put("id_user","1");
                 params.put("image",image);
+                params.put("deskripsi",deskripsi);
 
                 //returning parameters
                 return params;

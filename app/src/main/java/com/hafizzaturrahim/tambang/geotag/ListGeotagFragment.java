@@ -87,6 +87,7 @@ public class ListGeotagFragment extends Fragment {
         Bundle args = new Bundle();
         args.putParcelable("position", pos);
 
+        Log.v("deskripsi newAct", geotag.getDeskripsi());
         intent.putExtra("geo",geotag);
         intent.putExtra("bundle",args);
         getActivity().startActivity(intent);
@@ -147,6 +148,7 @@ public class ListGeotagFragment extends Fragment {
                     String image = jsonObject.getString("url");
                     Double lat = jsonObject.getDouble("lat");
                     Double lng = jsonObject.getDouble("lng");
+                    String deskripsi = jsonObject.getString("deskripsi");
 
                     Geotag geotag = new Geotag();
                     geotag.setNama(nama);
@@ -155,8 +157,9 @@ public class ListGeotagFragment extends Fragment {
                     geotag.setImage(image);
                     geotag.setLat(lat);
                     geotag.setLng(lng);
+                    geotag.setDeskripsi(deskripsi);
 
-                    Log.v("isi lat", String.valueOf(geotag.getLat()));
+                    Log.v("deskripsi parse", geotag.getDeskripsi());
                     geotagArrayList.add(geotag);
                 }
 

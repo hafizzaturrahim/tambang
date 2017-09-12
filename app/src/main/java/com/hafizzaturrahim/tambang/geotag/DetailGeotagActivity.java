@@ -43,6 +43,7 @@ public class DetailGeotagActivity extends AppCompatActivity implements OnMapRead
         imgGeotag = (ImageView) findViewById(R.id.img_geotag);
         TextView txtTitle = (TextView) findViewById(R.id.txt_nama);
         TextView txtCoordinate = (TextView) findViewById(R.id.txt_latlng);
+        TextView txtDescription = (TextView) findViewById(R.id.txt_deskripsi);
 
         //mengambil data yang dikirimkan lewat intent
         geotag = getIntent().getParcelableExtra("geo");
@@ -55,6 +56,9 @@ public class DetailGeotagActivity extends AppCompatActivity implements OnMapRead
 
         txtTitle.setText(geotag.getNama());
         txtCoordinate.setText("("+geotag.getLat()+", "+geotag.getLng()+")");
+
+        Log.v("deskripsi detail", "isi " +geotag.getDeskripsi());
+        txtDescription.setText(geotag.getDeskripsi());
         loadImage(geotag.getImage());
 
         mMapView = (MapView) findViewById(R.id.mapGeotag);

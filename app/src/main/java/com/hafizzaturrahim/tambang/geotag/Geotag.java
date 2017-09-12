@@ -14,6 +14,7 @@ public class Geotag implements Parcelable{
     Double lat;
     Double lng;
     String image;
+    String deskripsi;
 
     public Geotag() {
     }
@@ -23,6 +24,9 @@ public class Geotag implements Parcelable{
         id_user = in.readString();
         nama = in.readString();
         image = in.readString();
+        deskripsi = in.readString();
+        lat = in.readDouble();
+        lng = in.readDouble();
     }
 
     public static final Creator<Geotag> CREATOR = new Creator<Geotag>() {
@@ -85,6 +89,14 @@ public class Geotag implements Parcelable{
         this.image = image;
     }
 
+    public String getDeskripsi() {
+        return deskripsi;
+    }
+
+    public void setDeskripsi(String deskripsi) {
+        this.deskripsi = deskripsi;
+    }
+
     @Override
     public int describeContents() {
         return 0;
@@ -96,5 +108,8 @@ public class Geotag implements Parcelable{
         parcel.writeString(id_user);
         parcel.writeString(nama);
         parcel.writeString(image);
+        parcel.writeString(deskripsi);
+        parcel.writeDouble(lat);
+        parcel.writeDouble(lng);
     }
 }
